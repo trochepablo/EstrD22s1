@@ -59,6 +59,12 @@ segunda componente es el último día de la semana. -}
 primeroYUltimoDia :: (DiaDeSemana, DiaDeSemana)
 primeroYUltimoDia = (Lunes, Domingo)
 
+primerDia :: (DiaDeSemana, DiaDeSemana) -> DiaDeSemana
+primerDia (x,y) = x
+
+ultimoDia :: (DiaDeSemana, DiaDeSemana) -> DiaDeSemana
+ultimoDia (x,y) = y
+
 {-b) 
 Dado un dia de la semana indica si comienza con la letra M. -}
 empiezaConM :: DiaDeSemana -> Bool
@@ -84,14 +90,8 @@ convertirDiaANumero Domingo   = 7
 Dado un dia de la semana indica si no es ni el primer ni el ultimo dia-}
 estaEnElMedio :: DiaDeSemana -> Bool
 estaEnElMedio x = 
-    (convertirDiaANumero x > convertirPrimerDiaANumero primeroYUltimoDia) &&
-    (convertirDiaANumero x < convertirUltimoDiaANumero primeroYUltimoDia)
-
-convertirPrimerDiaANumero :: (DiaDeSemana, DiaDeSemana) -> Int
-convertirPrimerDiaANumero (x,y) = convertirDiaANumero x
-
-convertirUltimoDiaANumero :: (DiaDeSemana, DiaDeSemana) -> Int
-convertirUltimoDiaANumero (x,y) = convertirDiaANumero y
+    (convertirDiaANumero x > convertirDiaANumero (primerDia primeroYUltimoDia)) &&
+    (convertirDiaANumero x < convertirDiaANumero (ultimoDia primeroYUltimoDia))
 
 --3)
 {-a) 
