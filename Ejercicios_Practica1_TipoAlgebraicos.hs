@@ -120,9 +120,9 @@ and _     _   = False
 Dados dos booleanos si alguno de ellos es True devuelve True, sino devuelve False.
 En Haskell ya está definida como ||. -}
 or :: Bool -> Bool -> Bool
-or True _ = True 
-or _ True = True 
-or _  _   = False
+or False b = b
+or b False = b
+or _ _     = True
 
 -- 3. Registros
 
