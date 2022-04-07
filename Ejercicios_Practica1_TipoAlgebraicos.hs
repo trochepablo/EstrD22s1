@@ -109,8 +109,8 @@ implica _ _        = True
 Dados dos booleanos si ambos son True devuelve True, sino devuelve False.
 En Haskell ya está definida como &&. -}
 and :: Bool -> Bool -> Bool
-and True True = True 
-and _     _   = False
+and True b2 = b2
+and False _ = False  
 
 {-d) 
 Dados dos booleanos si alguno de ellos es True devuelve True, sino devuelve False.
