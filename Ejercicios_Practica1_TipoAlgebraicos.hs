@@ -57,14 +57,10 @@ data DiaDeSemana = Lunes | Martes | Miercoles | Jueves | Viernes | Sabado | Domi
 Devuelve un par donde la primera componente es el primer día de la semana, y la
 segunda componente es el último día de la semana. -}
 primeroYUltimoDia :: (DiaDeSemana, DiaDeSemana)
-primeroYUltimoDia = (Lunes, Domingo)
+primeroYUltimoDia = (primerDia, ultimoDia)
 
-primerDia :: (DiaDeSemana, DiaDeSemana) -> DiaDeSemana
-primerDia (x,y) = x
-
-ultimoDia :: (DiaDeSemana, DiaDeSemana) -> DiaDeSemana
-ultimoDia (x,y) = y
-
+primerDia = Lunes
+ultimoDia = Domingo
 {-b) 
 Dado un dia de la semana indica si comienza con la letra M. -}
 empiezaConM :: DiaDeSemana -> Bool
@@ -90,8 +86,8 @@ convertirDiaANumero Domingo   = 7
 Dado un dia de la semana indica si no es ni el primer ni el ultimo dia-}
 estaEnElMedio :: DiaDeSemana -> Bool
 estaEnElMedio x = 
-    (convertirDiaANumero x > convertirDiaANumero (primerDia primeroYUltimoDia)) &&
-    (convertirDiaANumero x < convertirDiaANumero (ultimoDia primeroYUltimoDia))
+    (convertirDiaANumero x > convertirDiaANumero primerDia) &&
+    (convertirDiaANumero x < convertirDiaANumero ultimoDia)
 
 --3)
 {-a) 
