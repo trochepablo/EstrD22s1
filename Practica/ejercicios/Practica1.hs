@@ -46,7 +46,6 @@ siguiente :: Dir -> Dir
 siguiente Norte = Este
 siguiente Este  = Sur
 siguiente Sur   = Oeste
-
 {- 
     ¿Posee una precondición esta función? si, la precondicion es que el argumento Oeste no tiene siguiente direccion
     ¿Es una función total o parcial? ¿Por qué? Es parcial, ya que no responde a todos los posibles argumentos
@@ -228,6 +227,7 @@ estaVacia _ = False
 -- Definida en Haskell como head.
 -- Nota: tener en cuenta que el constructor de listas es :
 elPrimero :: [a] -> a
+elPrimero []     = error "debe haber al menos 1 elemento."
 elPrimero (x:xs) = x
 
 -- 4. 
@@ -235,6 +235,7 @@ elPrimero (x:xs) = x
 -- Definida en Haskell como tail.
 -- Nota: tener en cuenta que el constructor de listas es :
 sinElPrimero :: [a] -> [a]
+sinElPrimero []     = error "debe haber al menos 1 elemento."
 sinElPrimero (x:xs) = xs
 
 -- 5. 
@@ -242,4 +243,5 @@ sinElPrimero (x:xs) = xs
 -- lista, y la segunda componente es esa lista pero sin el primero.
 -- Nota: tener en cuenta que el constructor de listas es :
 splitHead :: [a] -> (a, [a])
+splitHead []     = error "debe haber al menos 1 elemento."
 splitHead (x:xs) = (x, xs)

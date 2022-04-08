@@ -1,8 +1,8 @@
 module Practica2 where
-import Practica1
+--import Practica1
 
 
--- 1) --
+-- 1 Recursión sobre listas --
 
 --1. 
 sumatoria :: [Int] -> Int
@@ -18,6 +18,9 @@ longitud (x:xs) = 1 + longitud xs
 sucesores :: [Int] -> [Int]
 sucesores []     = []
 sucesores (x:xs) = sucesor x : sucesores xs
+
+sucesor :: Int -> Int 
+sucesor n = n + 1
 
 --4. 
 conjuncion :: [Bool] -> Bool
@@ -100,3 +103,98 @@ elMinimo (x:xs) =
         then x
         else elMinimo xs
 
+-- 2 Recursión sobre números --
+
+--1
+factorial :: Int -> Int
+factorial 0 = 1
+factorial n = n * factorial (n-1)
+
+--2 
+cuentaRegresiva :: Int -> [Int]
+cuentaRegresiva 0 = []
+cuentaRegresiva n = n : cuentaRegresiva (n-1)
+
+--3
+repetir :: Int -> a -> [a]
+repetir 0 _ = []
+repetir n e = e : repetir (n-1) e
+
+--4
+losPrimeros :: Int -> [a] -> [a]
+losPrimeros 0 _      = []
+losPrimeros _ []     = []
+losPrimeros n (x:xs) = x : losPrimeros (n-1) xs
+
+--5
+sinLosPrimeros :: Int -> [a] -> [a]
+sinLosPrimeros 0 xs     = xs
+sinLosPrimeros _ []     = []
+sinLosPrimeros n (_:xs) = sinLosPrimeros (n-1) xs
+
+-- 3 Registros --
+data Persona = ConsP String Int
+
+mayoresA :: Int -> [Persona] -> [Persona]
+mayoresA em []     = []
+mayoresA em (x:xs) =
+    if esPersonaDeEdadMayorA em x
+        then x : mayoresA em xs
+        else mayoresA em xs
+
+--
+esPersonaDeEdadMayorA :: Int -> Persona -> Bool
+esPersonaDeEdadMayorA em (ConsP _ ep) = em > ep
+
+promedioEdad :: [Persona] -> Int
+promedioEdad [] = 0
+promedioEdad xs = div (sumarEdadDePersonas xs) (longitud xs)
+
+sumarEdadDePersonas :: [Persona] -> Int
+sumarEdadDePersonas []     = 0
+sumarEdadDePersonas (x:xs) = obtenerEdadDe x + sumarEdadDePersonas xs
+
+obtenerEdadDe :: Persona -> Int
+obtenerEdadDe (ConsP _ e) = e
+
+--
+elMasViejo :: [Persona] -> Persona
+elMasViejo []     = error "al menos 1 elemento"
+elMasViejo (x:[]) = x
+elMasViejo (x:xs) =
+    if obtenerEdadDe x > obtenerEdadDe (elMasViejo xs)
+        then x
+        else elMasViejo xs
+
+data TipoDePokemon = Agua | Fuego | Planta
+data Pokemon = ConsPokemon TipoDePokemon Int
+data Entrenador = ConsEntrenador String [Pokemon]
+
+cantPokemon :: Entrenador -> Int
+cantPokemon (ConsEntrenador _ ps) = longitud ps
+
+cantPokemonDe :: TipoDePokemon -> Entrenador -> Int
+cantPokemonDe tp (ConsEntrenador _ ps) = contarPokeDeTipo tp ps
+
+contarPokeDeTipo :: TipoDePokemon -> [Pokemon] -> Int
+contarPokeDeTipo tp []     = 0
+contarPokeDeTipo tp (x:xs) = unoSi (pokeEsDeTipo x tp)
+
+unoSi :: Bool -> Int
+unoSi True  = 1
+unoSi False = 0
+
+pokeEsDeTipo :: Pokemon -> TipoDePokemon -> Bool  
+pokeEsDeTipo (ConsPokemon tpp _) tp = tipoDePokemonEsDeTipo tp tpp
+
+tipoDePokemonEsDeTipo :: TipoDePokemon -> TipoDePokemon -> Bool
+tipoDePokemonEsDeTipo Agua Agua     = True
+tipoDePokemonEsDeTipo Fuego Fuego   = True
+tipoDePokemonEsDeTipo Planta Planta = True
+tipoDePokemonEsDeTipo _ _           = True
+
+-- losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
+-- Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo, que le ganarían
+-- a los Pokemon del segundo entrenador.
+-- esMaestroPokemon :: Entrenador -> Bool
+-- Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
