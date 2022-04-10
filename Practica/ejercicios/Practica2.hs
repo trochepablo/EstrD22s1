@@ -191,10 +191,102 @@ tipoDePokemonEsDeTipo :: TipoDePokemon -> TipoDePokemon -> Bool
 tipoDePokemonEsDeTipo Agua Agua     = True
 tipoDePokemonEsDeTipo Fuego Fuego   = True
 tipoDePokemonEsDeTipo Planta Planta = True
-tipoDePokemonEsDeTipo _ _           = True
+tipoDePokemonEsDeTipo _ _           = False
 
 -- losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 -- Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo, que le ganarían
 -- a los Pokemon del segundo entrenador.
+losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
+losQueLeGanan tp (ConsEntrenador _ ps) e2 = tipoDePokemonLeGanaAEntrenador ps e2 tp
+
+tipoDePokemonLeGanaAEntrenador :: [Pokemon] -> Entrenador -> TipoDePokemon -> Int
+tipoDePokemonLeGanaAEntrenador ps (ConsEntrenador _ ps2) tp = pokemonesLeGananAOtrosPokemones (filtrarPokemonesPorTipo ps tp) ps2
+
+filtrarPokemonesPorTipo :: [Pokemon] -> TipoDePokemon -> [Pokemon]
+filtrarPokemonesPorTipo [] tp     = []
+filtrarPokemonesPorTipo (x:xs) tp = 
+    if pokeEsDeTipo x tp
+        then x : filtrarPokemonesPorTipo xs tp
+        else filtrarPokemonesPorTipo xs tp
+
+pokemonesLeGananAOtrosPokemones :: [Pokemon] -> [Pokemon] -> Int
+pokemonesLeGananAOtrosPokemones [] ps = 0
+pokemonesLeGananAOtrosPokemones (x:xs) ps = unoSi (pokemonLeGanaATodosLosPokemones x ps) + pokemonesLeGananAOtrosPokemones xs ps
+
+pokemonLeGanaATodosLosPokemones :: Pokemon -> [Pokemon] -> Bool
+pokemonLeGanaATodosLosPokemones p []     = True
+pokemonLeGanaATodosLosPokemones p (x:xs) = superaA p x && pokemonLeGanaATodosLosPokemones p xs
+
+superaA :: Pokemon -> Pokemon -> Bool
+superaA (ConsPokemon t1 _) (ConsPokemon t2 _) = esTipoSuperior t1 t2
+
+esTipoSuperior :: TipoDePokemon -> TipoDePokemon -> Bool 
+esTipoSuperior Agua Fuego = True 
+esTipoSuperior Fuego Planta = True
+esTipoSuperior Planta Agua = True
+esTipoSuperior _ _ = False
+
+tiposDepokemon = [Agua, Fuego, Planta]
+
 -- esMaestroPokemon :: Entrenador -> Bool
 -- Dado un entrenador, devuelve True si posee al menos un Pokémon de cada tipo posible.
+esMaestroPokemon :: Entrenador -> Bool
+esMaestroPokemon (ConsEntrenador _ ps) = tieneTodosLosTipos ps tiposDepokemon
+
+tieneTodosLosTipos :: [Pokemon] -> [TipoDePokemon] -> Bool
+tieneTodosLosTipos ps []     = True
+tieneTodosLosTipos ps (x:xs) = hayAlMenosUnPokemonDeTipo ps x && tieneTodosLosTipos ps xs
+
+hayAlMenosUnPokemonDeTipo :: [Pokemon] -> TipoDePokemon -> Bool
+hayAlMenosUnPokemonDeTipo [] tp     = False
+hayAlMenosUnPokemonDeTipo (x:xs) tp = pokeEsDeTipo x tp || hayAlMenosUnPokemonDeTipo xs tp
+
+charizard = ConsPokemon Fuego 25
+flareon = ConsPokemon Fuego 100
+
+lapras = ConsPokemon Agua 50
+vaporeon = ConsPokemon Agua 200
+
+gloom = ConsPokemon Planta 75
+trecko = ConsPokemon Planta 300
+
+--Entrenadores para probar
+red     = ConsEntrenador "Red"  [charizard,lapras,gloom, vaporeon]
+gary    = ConsEntrenador "Gary"[trecko,vaporeon]
+misty   = ConsEntrenador "Misty" [lapras,vaporeon]
+satoshi = ConsEntrenador "Satoshi" [flareon]
+blaine  = ConsEntrenador "Blaine" [flareon, charizard, flareon, flareon, flareon]
+maestro = ConsEntrenador "Maestro"[charizard, gloom, lapras]
+
+-- 3. -- 
+
+data Seniority = Junior | SemiSenior | Senior
+data Proyecto = ConsProyecto String
+data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
+data Empresa = ConsEmpresa [Rol]
+
+--Dada una empresa denota la lista de proyectos en los que trabaja, sin elementos repetidos.
+proyectos :: Empresa -> [Proyecto]
+proyectos (ConsEmpresa rs) = sinRepetidos (extraerProyectosDeRoles rs)
+
+extraerProyectosDeRoles :: [Rol] -> [Proyecto]
+extraerProyectosDeRoles []     = []
+extraerProyectosDeRoles (r:rs) = extraerProyectoDeRol r : extraerProyectosDeRoles rs
+
+extraerProyectoDeRol :: Rol -> Proyecto
+extraerProyectoDeRol (Developer _ p) = p
+extraerProyectoDeRol (Management _ p) = p
+
+sinRepetidos :: [Proyecto] -> [Proyecto]
+sinRepetidos []     = []
+sinRepetidos (x:xs) = 
+    if existeProyectoEn x (sinRepetidos xs)
+        then sinRepetidos xs
+        else x : sinRepetidos xs
+
+existeProyectoEn :: Proyecto -> [Proyecto] -> Bool
+existeProyectoEn _ []     = False
+existeProyectoEn e (x:xs) = (extraerNombre e) == (extraerNombre x)  || existeProyectoEn e xs         
+
+extraerNombre :: Proyecto -> String 
+extraerNombre (ConsProyecto n) = n
