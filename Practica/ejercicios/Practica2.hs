@@ -290,3 +290,61 @@ existeProyectoEn e (x:xs) = (extraerNombre e) == (extraerNombre x)  || existePro
 
 extraerNombre :: Proyecto -> String 
 extraerNombre (ConsProyecto n) = n
+
+-- 2 
+
+-- Dada una empresa indica la cantidad de desarrolladores senior que posee, que pertecen
+-- además a los proyectos dados por parámetro.
+losDevSenior :: Empresa -> [Proyecto] -> Int
+losDevSenior (ConsEmpresa rs) pys = contarEmpleadosQuePertenecenAProyectos (filtrarSeniors rs) pys
+
+contarEmpleadosQuePertenecenAProyectos :: [Rol] -> [Proyecto] -> Int 
+contarEmpleadosQuePertenecenAProyectos [] pys     = 0
+contarEmpleadosQuePertenecenAProyectos (r:rs) pys = 
+    unoSi (rolPerteneceAProyectos r pys) + contarEmpleadosQuePertenecenAProyectos rs pys
+
+rolPerteneceAProyectos :: Rol -> [Proyecto] -> Bool 
+rolPerteneceAProyectos (Developer _ p)  pys = proyectoEstaEn p pys
+rolPerteneceAProyectos (Management _ p) pys = proyectoEstaEn p pys
+
+proyectoEstaEn :: Proyecto -> [Proyecto] -> Bool 
+proyectoEstaEn proyectoRol [] = False  
+proyectoEstaEn proyectoRol (x:xs) = proyectoEsIgualA x proyectoRol || proyectoEstaEn proyectoRol xs 
+
+proyectoEsIgualA :: Proyecto -> Proyecto -> Bool
+proyectoEsIgualA (ConsProyecto proyecto) proyectoRol  = sonMismoProyecto proyecto proyectoRol
+
+sonMismoProyecto :: String -> Proyecto -> Bool 
+sonMismoProyecto proyecto (ConsProyecto proyectoRol) = proyecto == proyectoRol
+
+filtrarSeniors :: [Rol] -> [Rol]
+filtrarSeniors []     = []
+filtrarSeniors (x:xs) = 
+    if rolesSenioritySenior x 
+        then x : filtrarSeniors xs
+        else filtrarSeniors xs
+
+rolesSenioritySenior :: Rol -> Bool
+rolesSenioritySenior (Developer sn _)  = esSenior sn
+rolesSenioritySenior (Management sn _) = esSenior sn
+
+esSenior :: Seniority -> Bool 
+esSenior Senior = True
+esSenior _      = False 
+
+
+--Indica la cantidad de empleados que trabajan en alguno de los proyectos dados.
+cantQueTrabajanEn :: [Proyecto] -> Empresa -> Int
+cantQueTrabajanEn pys (ConsEmpresa rs) = contarEmpleadosQuePertenecenAProyectos rs pys
+
+--Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
+--cantidad de personas involucradas.
+asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
+asignadosPorProyecto empresa = contarEmpleadosPorProyecto empresa (sinRepetidos (extraerProyectosDeRoles (extraerRolesDeEmpresa empresa)))
+
+extraerRolesDeEmpresa :: Empresa -> [Rol]
+extraerRolesDeEmpresa (ConsEmpresa rs) = rs
+
+contarEmpleadosPorProyecto :: Empresa -> [Proyecto] -> [(Proyecto, Int)]
+contarEmpleadosPorProyecto emp []       = []
+contarEmpleadosPorProyecto emp (py:pys) = (py, cantQueTrabajanEn [py] emp) : contarEmpleadosPorProyecto emp pys
