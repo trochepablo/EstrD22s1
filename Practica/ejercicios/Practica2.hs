@@ -87,8 +87,8 @@ reversa (x:xs) = concatenar (reversa xs) [x]
 
 --14 
 zipMaximos :: [Int] -> [Int] -> [Int]
-zipMaximos [] _          = []
-zipMaximos _ []          = []
+zipMaximos [] ys          = ys
+zipMaximos xs []          = xs
 zipMaximos (x:xs) (y:ys) = 
     if x > y
         then x : zipMaximos xs ys
