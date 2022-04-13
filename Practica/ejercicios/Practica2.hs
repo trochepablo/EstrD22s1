@@ -342,13 +342,26 @@ cantQueTrabajanEn pys (ConsEmpresa rs) = contarEmpleadosQuePertenecenAProyectos 
 -- data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
 -- data Empresa = ConsEmpresa [Rol]
 
+-- asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
+-- asignadosPorProyecto empresa = contarEmpleadosPorProyecto empresa (sinRepetidos (extraerProyectosDeRoles (extraerRolesDeEmpresa empresa)))
+
+-- extraerRolesDeEmpresa :: Empresa -> [Rol]
+-- extraerRolesDeEmpresa (ConsEmpresa rs) = rs
+
+-- contarEmpleadosPorProyecto :: Empresa -> [Proyecto] -> [(Proyecto, Int)]
+-- contarEmpleadosPorProyecto emp []       = []
+-- contarEmpleadosPorProyecto emp (py:pys) = (py, cantQueTrabajanEn [py] emp) : contarEmpleadosPorProyecto emp pys
+
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
 asignadosPorProyecto (ConsEmpresa roles) = asignadosPorProyectoDe roles
 
 asignadosPorProyectoDe :: [Rol] -> [(Proyecto, Int)]
 asignadosPorProyectoDe []     = []
-asignadosPorProyectoDe (x:xs) = armarTuplaPorProyectoDe x : asignadosPorProyectoDe xs
+asignadosPorProyectoDe (x:xs) = (nombreDeProyectoEn x, 0) : asignadosPorProyectoDe xs
 
-armarTuplaPorProyectoDe :: Rol -> (Proyecto, Int)
-armarTuplaPorProyectoDe (Developer  _ py) = (py, 1)
-armarTuplaPorProyectoDe (Management _ py) = (py, 1)
+nombreDeProyectoEn :: Rol -> String
+nombreDeProyectoEn (Developer  _ py) = nombreDe py
+nombreDeProyectoEn (Management _ py) = nombreDe py
+
+nombreDe :: Proyecto -> String
+nombreDe (ConsProyecto nombre) = nombre
