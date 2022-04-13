@@ -178,29 +178,26 @@ cantPokemonDe tp (ConsEntrenador _ ps) = contarPokeDeTipo tp ps
 
 contarPokeDeTipo :: TipoDePokemon -> [Pokemon] -> Int
 contarPokeDeTipo tp []     = 0
-contarPokeDeTipo tp (x:xs) = unoSi (pokeEsDeTipo x tp)
+contarPokeDeTipo tp (x:xs) = unoSi (pokeEsDeTipo x tp) + contarPokeDeTipo tp xs
 
 unoSi :: Bool -> Int
 unoSi True  = 1
 unoSi False = 0
 
 pokeEsDeTipo :: Pokemon -> TipoDePokemon -> Bool  
-pokeEsDeTipo (ConsPokemon tpp _) tp = tipoDePokemonEsDeTipo tp tpp
+pokeEsDeTipo (ConsPokemon tpp _) tp = esMismoTipoDePokemon tp tpp
 
-tipoDePokemonEsDeTipo :: TipoDePokemon -> TipoDePokemon -> Bool
-tipoDePokemonEsDeTipo Agua Agua     = True
-tipoDePokemonEsDeTipo Fuego Fuego   = True
-tipoDePokemonEsDeTipo Planta Planta = True
-tipoDePokemonEsDeTipo _ _           = False
+esMismoTipoDePokemon :: TipoDePokemon -> TipoDePokemon -> Bool 
+esMismoTipoDePokemon Agua Agua = True
+esMismoTipoDePokemon Fuego Fuego = True
+esMismoTipoDePokemon Planta Planta = True
+esMismoTipoDePokemon _ _ = False
 
 -- losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
 -- Dados dos entrenadores, indica la cantidad de Pokemon de cierto tipo, que le ganarían
 -- a los Pokemon del segundo entrenador.
 losQueLeGanan :: TipoDePokemon -> Entrenador -> Entrenador -> Int
-losQueLeGanan tp (ConsEntrenador _ ps) e2 = tipoDePokemonLeGanaAEntrenador ps e2 tp
-
-tipoDePokemonLeGanaAEntrenador :: [Pokemon] -> Entrenador -> TipoDePokemon -> Int
-tipoDePokemonLeGanaAEntrenador ps (ConsEntrenador _ ps2) tp = pokemonesLeGananAOtrosPokemones (filtrarPokemonesPorTipo ps tp) ps2
+losQueLeGanan tp (ConsEntrenador _ ps) (ConsEntrenador _ ps2) = cantidadDePokemonesQueLeGananALosOtros (filtrarPokemonesPorTipo ps tp) ps2
 
 filtrarPokemonesPorTipo :: [Pokemon] -> TipoDePokemon -> [Pokemon]
 filtrarPokemonesPorTipo [] tp     = []
@@ -209,9 +206,9 @@ filtrarPokemonesPorTipo (x:xs) tp =
         then x : filtrarPokemonesPorTipo xs tp
         else filtrarPokemonesPorTipo xs tp
 
-pokemonesLeGananAOtrosPokemones :: [Pokemon] -> [Pokemon] -> Int
-pokemonesLeGananAOtrosPokemones [] ps = 0
-pokemonesLeGananAOtrosPokemones (x:xs) ps = unoSi (pokemonLeGanaATodosLosPokemones x ps) + pokemonesLeGananAOtrosPokemones xs ps
+cantidadDePokemonesQueLeGananALosOtros :: [Pokemon] -> [Pokemon] -> Int
+cantidadDePokemonesQueLeGananALosOtros [] ps = 0
+cantidadDePokemonesQueLeGananALosOtros (x:xs) ps = unoSi (pokemonLeGanaATodosLosPokemones x ps) + cantidadDePokemonesQueLeGananALosOtros xs ps
 
 pokemonLeGanaATodosLosPokemones :: Pokemon -> [Pokemon] -> Bool
 pokemonLeGanaATodosLosPokemones p []     = True
@@ -339,12 +336,19 @@ cantQueTrabajanEn pys (ConsEmpresa rs) = contarEmpleadosQuePertenecenAProyectos 
 
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas.
+
+-- data Seniority = Junior | SemiSenior | Senior
+-- data Proyecto = ConsProyecto String
+-- data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
+-- data Empresa = ConsEmpresa [Rol]
+
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto empresa = contarEmpleadosPorProyecto empresa (sinRepetidos (extraerProyectosDeRoles (extraerRolesDeEmpresa empresa)))
+asignadosPorProyecto (ConsEmpresa roles) = asignadosPorProyectoDe roles
 
-extraerRolesDeEmpresa :: Empresa -> [Rol]
-extraerRolesDeEmpresa (ConsEmpresa rs) = rs
+asignadosPorProyectoDe :: [Rol] -> [(Proyecto, Int)]
+asignadosPorProyectoDe []     = []
+asignadosPorProyectoDe (x:xs) = armarTuplaPorProyectoDe x : asignadosPorProyectoDe xs
 
-contarEmpleadosPorProyecto :: Empresa -> [Proyecto] -> [(Proyecto, Int)]
-contarEmpleadosPorProyecto emp []       = []
-contarEmpleadosPorProyecto emp (py:pys) = (py, cantQueTrabajanEn [py] emp) : contarEmpleadosPorProyecto emp pys
+armarTuplaPorProyectoDe :: Rol -> (Proyecto, Int)
+armarTuplaPorProyectoDe (Developer  _ py) = (py, 1)
+armarTuplaPorProyectoDe (Management _ py) = (py, 1)
