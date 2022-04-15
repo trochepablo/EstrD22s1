@@ -112,9 +112,9 @@ factorial n = n * factorial (n-1)
 
 --2 
 cuentaRegresiva :: Int -> [Int]
-cuentaRegresiva 0    = []
-cuentaRegresiva i | i < 0 = [] 
-cuentaRegresiva n = n : cuentaRegresiva (n-1)
+cuentaRegresiva 0         = []
+cuentaRegresiva n | n < 0 = [] -- guard expression
+cuentaRegresiva n         = n : cuentaRegresiva (n-1)
 
 --3
 repetir :: Int -> a -> [a]
