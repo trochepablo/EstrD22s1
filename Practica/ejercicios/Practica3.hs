@@ -3,7 +3,6 @@ import Practica1
 data Color = Azul | Rojo
 data Celda = Bolita Color Celda | CeldaVacia
 
-
 -- Dados un color y una celda, indica la cantidad de bolitas de ese color. Nota: pensar si ya
 -- existe una operación sobre listas que ayude a resolver el problema.
 nroBolitas :: Color -> Celda -> Int
@@ -103,7 +102,6 @@ cantTesorosEn :: [Objeto] -> Int
 cantTesorosEn []     = 0
 cantTesorosEn (x:xs) = unoSi (esTesoro x) + cantTesorosEn xs
 
-
 -- Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 -- el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
 -- incluidos tanto 3 como 5 en el resultado.
@@ -124,7 +122,6 @@ cantDeTesorosEnCamino (Cofre xs _) = cantTesorosEn xs
 cantDeTesorosEnCamino _            = 0
 
 -- 2 --
-
 --2.1
 
 data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
@@ -177,8 +174,8 @@ heightT :: Tree a -> Int
 heightT EmptyT          = 0
 heightT (NodeT x t1 t2) = 
     if (sizeT t1) > (sizeT t2)
-        then heightT t1
-        else heightT t2 
+        then 1 + heightT t1
+        else 1 + heightT t2
 
 -- 8. 
 -- Dado un árbol devuelve el árbol resultante de intercambiar el hijo izquierdo con el derecho,
@@ -186,7 +183,6 @@ heightT (NodeT x t1 t2) =
 mirrorT :: Tree a -> Tree a
 mirrorT EmptyT          = EmptyT
 mirrorT (NodeT x t1 t2) = (NodeT x (mirrorT t2) (mirrorT t1))
-
 
 -- 9. 
 -- Dado un árbol devuelve una lista que representa el resultado de recorrerlo en modo in-order.
@@ -196,7 +192,7 @@ toList :: Tree a -> [a]
 toList EmptyT          = []
 toList (NodeT x t1 t2) = leaves t1 ++ x : leaves t2
 
-node1 = NodeT 1 (NodeT 2 (NodeT 4 EmptyT EmptyT) (NodeT 5 EmptyT EmptyT)) (NodeT 3 EmptyT EmptyT)
+node1 = NodeT 1 (NodeT 2 (NodeT 4 (NodeT 6 EmptyT EmptyT) (NodeT 7 EmptyT EmptyT)) (NodeT 5 EmptyT EmptyT)) (NodeT 3 EmptyT EmptyT)
 
 -- 10. 
 -- Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
@@ -211,31 +207,32 @@ levelN n (NodeT x t1 t2) = levelN (n-1) t1 ++ levelN (n-1) t2
 -- 11. 
 -- Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 -- dicho árbol.
+--
 listPerLevel :: Tree a -> [[a]]
+listPerLevel nodo = elementosPorLevel nodo (heightT nodo)
 
+elementosPorLevel :: Tree a -> Int -> [[a]]
+elementosPorLevel nodo 0 = [levelN 0 nodo]
+elementosPorLevel nodo n = levelN n nodo : elementosPorLevel nodo (n-1)
 
--- 12. ramaMasLarga :: Tree a -> [a]
 -- Devuelve los elementos de la rama más larga del árbol
--- 13. todosLosCaminos :: Tree a -> [[a]]
+-- 12. 
+ramaMasLarga :: Tree a -> [a]
+ramaMasLarga EmptyT = []
+ramaMasLarga (NodeT x t1 t2) = 
+    x : if (sizeT t1) > (sizeT t2)
+            then ramaMasLarga t1
+            else ramaMasLarga t2
+
+-- 13. 
 -- Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raiz hasta las hojas.
+todosLosCaminos :: Tree a -> [[a]]
+todosLosCaminos EmptyT          = []
+todosLosCaminos (NodeT x t1 t2) = [x] : consACada x (todosLosCaminos t1) ++ consACada x (todosLosCaminos t2)
 
-
-
--- data Tree a = EmptyT | NodeT a (Tree a) (Tree a)
-
--- todosLosCaminos2 :: Tree a -> [[a]]
--- todosLosCaminos2 EmptyT          = []
--- todosLosCaminos2 (NodeT x t1 t2) = [x] : consACada x (todosLosCaminos2 t1) ++ consACada x (todosLosCaminos2 t2)
-
--- consACada :: a -> [[a]] -> [[a]]
--- consACada x []       = []
--- consACada x (xs:xss) = (x:xs) : consACada x xss
-
--- tree1 = 
---     NodeT 1 
---     (NodeT 2 (NodeT 3 EmptyT EmptyT) EmptyT)
---     (NodeT 3 EmptyT EmptyT)
-
+consACada :: a -> [[a]] -> [[a]]
+consACada x []       = []
+consACada x (xs:xss) = (x:xs) : consACada x xss
 
 data ExpA = Valor Int | Sum ExpA ExpA | Prod ExpA ExpA | Neg ExpA
 
@@ -246,19 +243,14 @@ eval (Sum expA expB)   = eval expA + eval expB
 eval (Prod expA expB)  = eval expA * eval expB
 eval (Neg expA)        = eval expA * (-1)
 
-
 -- Dada una expresión aritmética, la simplifica según los siguientes criterios (descritos utilizando
 -- notación matemática convencional):
--- simplificar :: ExpA -> ExpA
--- simplificar (Sum expA expB) = 
---     if esCero expA
---         then expB
---         else eval (Sum expA expB)
 
--- simplificar (Prod expA expB) = 
---     if esCero expA || esCero expB
---         then 0
---         else eval (Prod expA expB)
+simplificar :: ExpA -> ExpA
+simplificar (Sum expA expB)  = if esCero expA then expB else Sum expA expB
+simplificar (Prod expA expB) = if esCero expA || esCero expB then Prod expA (Valor 0) else Prod expA expB
+simplificar (Neg expA)       = expA
+simplificar expA             = expA
 
 esCero :: ExpA -> Bool
 esCero (Valor n) = n == 0

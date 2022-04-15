@@ -107,8 +107,9 @@ elMinimo (x:xs) =
 
 --1
 factorial :: Int -> Int
-factorial 0 = 1
-factorial n = n * factorial (n-1)
+factorial 0         = 1
+factorial n | n < 0 = error "No puede ser valor negativo"
+factorial n         = n * factorial (n-1)
 
 --2 
 cuentaRegresiva :: Int -> [Int]
