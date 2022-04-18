@@ -94,7 +94,7 @@ restarCantTesorosAn n Fin               = n
 restarCantTesorosAn n (Nada _)          = n
 restarCantTesorosAn n (Cofre xs camino) = 
     let cantTesoros = cantTesorosEn xs in
-    if cantTesoros < 0
+    if (cantTesoros - n) < 0
         then 0
         else cantTesoros
 
