@@ -339,33 +339,34 @@ cantQueTrabajanEn pys (ConsEmpresa rs) = contarEmpleadosQuePertenecenAProyectos 
 --Devuelve una lista de pares que representa a los proyectos (sin repetir) junto con su
 --cantidad de personas involucradas.
 
-
 -- data Seniority = Junior | SemiSenior | Senior
 -- data Proyecto = ConsProyecto String
 -- data Rol = Developer Seniority Proyecto | Management Seniority Proyecto
 -- data Empresa = ConsEmpresa [Rol]
 
 asignadosPorProyecto :: Empresa -> [(Proyecto, Int)]
-asignadosPorProyecto (ConsEmpresa roles) = proyectosYCantidadDeIntegrantes (proyectosSinRepetidos roles) roles
+asignadosPorProyecto (ConsEmpresa roles) = proyectosYCantidadDeIntegrantes roles
 
-proyectosSinRepetidos :: [Rol] -> [Proyecto]
-proyectosSinRepetidos []     = []
-proyectosSinRepetidos (x:xs) = agregarSiEsNecesario (extraerProyectoDe x) (proyectosSinRepetidos xs)
+proyectosYCantidadDeIntegrantes :: [Rol] -> [(Proyecto, Int)]
+proyectosYCantidadDeIntegrantes []     = []
+proyectosYCantidadDeIntegrantes (x:xs) = agregar x (proyectosYCantidadDeIntegrantes xs)
 
-extraerProyectoDe :: Rol -> Proyecto
-extraerProyectoDe (Developer _ py) = py
-extraerProyectoDe (Management _ py) = py
+agregar :: Rol -> [(Proyecto, Int)] -> [(Proyecto, Int)]
+agregar rol []          = [(obtenerProyectoDe rol, 1)]
+agregar rol ((x,n):xns) =
+    if proyectoDeRolPerteneceA rol x 
+        then (x,n+1) : xns
+        else (x,n) : agregar rol xns
 
-agregarSiEsNecesario :: Proyecto -> [Proyecto] -> [Proyecto]
-agregarSiEsNecesario py pys = 
-    if perteneceProyectoA py pys 
-        then pys
-        else py : pys
+obtenerProyectoDe :: Rol -> Proyecto
+obtenerProyectoDe (Developer _ py)  = py
+obtenerProyectoDe (Management _ py) = py
 
-proyectosYCantidadDeIntegrantes :: [Proyecto] -> [Rol] -> [(Proyecto, Int)]
-proyectosYCantidadDeIntegrantes [] roles     = []
-proyectosYCantidadDeIntegrantes (x:xs) roles = (x, contarIntegrantesPorProyecto x roles) : proyectosYCantidadDeIntegrantes xs roles
+proyectoDeRolPerteneceA :: Rol -> Proyecto -> Bool
+proyectoDeRolPerteneceA rol (ConsProyecto nombrePy) = nombrePy == obtenerNombreDeProyectoEn rol
 
-contarIntegrantesPorProyecto :: Proyecto -> [Rol] -> Int
-contarIntegrantesPorProyecto _ []     = 0
-contarIntegrantesPorProyecto py (x:xs) = unoSi (rolPerteneceAProyectos x [py]) + contarIntegrantesPorProyecto py xs
+obtenerNombreDeProyectoEn :: Rol -> String
+obtenerNombreDeProyectoEn rol = obtenerNombreDelProyecto (obtenerProyectoDe rol)
+
+obtenerNombreDelProyecto :: Proyecto -> String
+obtenerNombreDelProyecto (ConsProyecto nombrePy) = nombrePy
