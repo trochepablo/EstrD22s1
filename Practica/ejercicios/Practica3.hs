@@ -85,18 +85,17 @@ hayTesoroAqui (Cofre xs _) = hayTesoroEnObjetos xs
 
 -- Indica si hay al menos “n” tesoros en el camino.
 alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros n Fin    = False
-alMenosNTesoros 0 _      = True 
-alMenosNTesoros n camino = alMenosNTesoros (restarCantTesorosAn n camino) camino
+alMenosNTesoros 0 _             = True 
+alMenosNTesoros n Fin           = False
+alMenosNTesoros n camino        = alMenosNTesoros (restarCantTesorosAn n camino) (siguienteCamino camino)
 
-restarCantTesorosAn :: Int -> Camino -> Int
-restarCantTesorosAn n Fin               = n
-restarCantTesorosAn n (Nada _)          = n
-restarCantTesorosAn n (Cofre xs camino) = 
-    let cantTesoros = cantTesorosEn xs in
-    if (cantTesoros - n) < 0
+restarCantTesorosAn :: Int -> Camino -> Int      
+restarCantTesorosAn n (Cofre xs _) =
+    let cantTesorosMenosN = (n - cantTesorosEn xs) in
+    if cantTesorosMenosN < 0
         then 0
-        else cantTesoros
+        else cantTesorosMenosN
+restarCantTesorosAn n _            = n
 
 cantTesorosEn :: [Objeto] -> Int
 cantTesorosEn []     = 0
@@ -120,6 +119,17 @@ contarTesorosHasta n camino         = cantDeTesorosEnCamino camino + contarTesor
 cantDeTesorosEnCamino :: Camino -> Int 
 cantDeTesorosEnCamino (Cofre xs _) = cantTesorosEn xs
 cantDeTesorosEnCamino _            = 0
+
+
+
+
+caminoConDeTodo = Cofre [Cacharro, Cacharro] (Nada (Cofre [Cacharro,Tesoro] Fin))
+
+caminoConCacharro = Cofre [Cacharro] (Nada (Cofre [Cacharro, Cacharro] Fin))
+
+caminoConTesoros = Nada (Nada (Nada (Cofre [Tesoro, Tesoro] Fin)))
+
+caminoCon1Tesoro = Cofre [Tesoro] (Nada Fin)
 
 -- 2 --
 --2.1

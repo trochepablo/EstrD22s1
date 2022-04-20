@@ -46,4 +46,4 @@ duplicarCantSiEsAceitunas ingrediente = ingrediente
 
 -- -- Dada una lista de pizzas devuelve un par donde la primera componente es la cantidad de
 -- -- ingredientes de la pizza, y la respectiva pizza como segunda componente.
--- cantCapasPorPizza :: [Pizza] -> [(Int, Pizza)]
+--cantCapasPorPizza :: [Pizza] -> [(Int, Pizza)]
