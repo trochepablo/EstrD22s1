@@ -38,6 +38,20 @@ ponerN n c celda = poner c (ponerN (n-1) c celda)
 data Objeto = Cacharro | Tesoro
 data Camino = Fin | Cofre [Objeto] Camino | Nada Camino
 
+
+
+tesorosEntre = Nada (
+                    Nada (
+                        Nada (
+                            Cofre [Tesoro] (
+                                Nada (
+                                    Cofre [Tesoro, Tesoro] 
+                                    Fin)
+                                    )
+                            )
+                        )
+                    )
+
 -- Indica si hay un cofre con un tesoro en el camino.
 hayTesoro :: Camino -> Bool
 hayTesoro Fin               = False
@@ -66,7 +80,6 @@ pasosHastaTesoro (Cofre xs camino) =
 -- Indica si hay un tesoro en una cierta cantidad exacta de pasos. Por ejemplo, si el número de
 -- pasos es 5, indica si hay un tesoro en 5 pasos.
 hayTesoroEn :: Int -> Camino -> Bool
-hayTesoroEn n Fin     = False
 hayTesoroEn 0 camino  = hayTesoroAqui camino
 hayTesoroEn n camino  = hayTesoroEn (n-1) (siguienteCamino camino)
 
@@ -101,17 +114,14 @@ cantTesorosEn (x:xs) = unoSi (esTesoro x) + cantTesorosEn xs
 -- Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 -- el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
 -- incluidos tanto 3 como 5 en el resultado.
+
+-- Precondicion: La cantidad de pasos hasta (n1) debe ser mayor a cantidad de pasos Desde (n2)
 cantTesorosEntre :: Int -> Int -> Camino -> Int
 cantTesorosEntre _  _  Fin             = 0
 cantTesorosEntre n1 n2 camino | n1 < 0 = 0
-cantTesorosEntre 0  n2 camino          = contarTesorosHasta n2 camino
-cantTesorosEntre n1 n2 camino          = cantTesorosEntre (n1-1) n2 (siguienteCamino camino)
-
-contarTesorosHasta :: Int -> Camino -> Int
-contarTesorosHasta _ Fin            = 0
-contarTesorosHasta n camino | n < 0 = 0
-contarTesorosHasta 0 camino         = cantDeTesorosEnCamino camino
-contarTesorosHasta n camino         = cantDeTesorosEnCamino camino + contarTesorosHasta (n-1) (siguienteCamino camino)
+cantTesorosEntre 0  0 camino           = cantDeTesorosEnCamino camino
+cantTesorosEntre 0  n2 camino          = cantDeTesorosEnCamino camino + cantTesorosEntre 0 (n2-1) (siguienteCamino camino)
+cantTesorosEntre n1 n2 camino          = cantTesorosEntre (n1-1) (n2-1) (siguienteCamino camino)
 
 cantDeTesorosEnCamino :: Camino -> Int 
 cantDeTesorosEnCamino (Cofre xs _) = cantTesorosEn xs
