@@ -79,19 +79,34 @@ pasosHastaTesoro (Cofre xs camino) =
 
 -- Indica si hay un tesoro en una cierta cantidad exacta de pasos. Por ejemplo, si el número de
 -- pasos es 5, indica si hay un tesoro en 5 pasos.
+-- precondicion: La cantidad de pasos tiene que ser mayor a cero
 hayTesoroEn :: Int -> Camino -> Bool
-hayTesoroEn 0 camino  = hayTesoroAqui camino
-hayTesoroEn n camino  = hayTesoroEn (n-1) (siguienteCamino camino)
+hayTesoroEn _ Fin                        = False
+hayTesoroEn pasos (Nada camino)          = hayTesoroEn pasos camino
+hayTesoroEn pasos (Cofre objetos camino) = 
+    if esPasoCero pasos then
+        hayTesoroEnObjetos objetos
+    else 
+        hayTesoroEn (pasos - 1) camino
+
+esPasoCero :: Int -> Bool 
+esPasoCero 0 = True
+esPasoCero _ = False
+
+-- hayTesoroEn :: Int -> Camino -> Bool
+-- hayTesoroEn 0 camino  = hayTesoroAqui camino
+-- hayTesoroEn n camino  = hayTesoroEn (n-1) (siguienteCamino camino)
+
 
 siguienteCamino :: Camino -> Camino
 siguienteCamino Fin              = Fin   
 siguienteCamino (Nada camino)    = camino
 siguienteCamino (Cofre _ camino) = camino
 
-hayTesoroAqui :: Camino -> Bool
-hayTesoroAqui Fin          = False
-hayTesoroAqui (Nada _)     = False
-hayTesoroAqui (Cofre xs _) = hayTesoroEnObjetos xs
+-- hayTesoroAqui :: Camino -> Bool
+-- hayTesoroAqui Fin          = False
+-- hayTesoroAqui (Nada _)     = False
+-- hayTesoroAqui (Cofre xs _) = hayTesoroEnObjetos xs
 
 -- Indica si hay al menos “n” tesoros en el camino.
 alMenosNTesoros :: Int -> Camino -> Bool
