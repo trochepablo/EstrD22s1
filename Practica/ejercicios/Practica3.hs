@@ -196,10 +196,7 @@ isLeave _      _      = False
 -- . La altura para EmptyT es 0, y para una hoja es 1.
 heightT :: Tree a -> Int
 heightT EmptyT          = 0
-heightT (NodeT x t1 t2) = 
-    if esDeMayorTamanio t1 t2
-        then 1 + heightT t1
-        else 1 + heightT t2
+heightT (NodeT x t1 t2) = 1 + max (heightT t1) (heightT t2)
 
 -- Dado dos arboles evalua si el primero (tree1) es de mayor tamaño que el segundo (tree2)
 esDeMayorTamanio :: Tree a -> Tree a -> Bool
@@ -255,11 +252,11 @@ juntarNiveles (xs:xss) (ys: yss) = (xs ++ ys) : juntarNiveles xss yss
 -- Devuelve los elementos de la rama más larga del árbol
 -- 12. 
 ramaMasLarga :: Tree a -> [a]
-ramaMasLarga EmptyT = []
+ramaMasLarga EmptyT          = []
 ramaMasLarga (NodeT x t1 t2) = 
-    x : if esDeMayorTamanio t1 t2
-            then ramaMasLarga t1
-            else ramaMasLarga t2
+    if heightT t1 > heightT t2
+        then ramaMasLarga t1
+        else ramaMasLarga t2
 
 -- 13. 
 -- Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raiz hasta las hojas.
