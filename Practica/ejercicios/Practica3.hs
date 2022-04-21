@@ -74,7 +74,7 @@ pasosHastaTesoro Fin               = 0
 pasosHastaTesoro (Nada camino)     = 1 + pasosHastaTesoro camino
 pasosHastaTesoro (Cofre xs camino) = 
     if hayTesoroEnObjetos xs
-        then pasosHastaTesoro Fin
+        then 0
         else 1 + pasosHastaTesoro camino
 
 -- Indica si hay un tesoro en una cierta cantidad exacta de pasos. Por ejemplo, si el número de
