@@ -195,14 +195,20 @@ aparicionesT e (NodeT x t1 t2)  = unoSi (x==e) + aparicionesT e t1 + apariciones
 -- Dado un árbol devuelve los elementos que se encuentran en sus hojas.
 leaves :: Tree a -> [a]
 leaves EmptyT          = []
-leaves (NodeT x t1 t2) = 
-    if isLeave t1 t2
-        then x : leaves t1 ++ leaves t2
-        else leaves t1 ++ leaves t2
+leaves (NodeT x t1 t2) = x : agregarHojasDe (leaves t1) ++ agregarHojasDe (leaves t2)
 
-isLeave :: Tree a -> Tree a -> Bool
-isLeave EmptyT EmptyT = True
-isLeave _      _      = False
+agregarHojasDe :: [a] -> [a]
+agregarHojasDe []     = []
+agregarHojasDe (x:[]) = [x]
+agregarHojasDe (x:xs) = agregarHojasDe xs
+
+
+-- leaves :: Tree a -> [a]
+-- leaves (NodeT x t1 t2) =  hojasDe t1 ++ hojasDe t2
+
+-- hojasDe :: Tree a -> [a]
+-- hojasDe EmptyT = []
+-- hojasDe (NodeT x t1 t2) = x : agregarHojasDe (hojasDe t1) ++ agregarHojasDe (hojasDe t2)
 
 -- 7. 
 -- Dado un árbol devuelve su altura.
@@ -228,7 +234,7 @@ toList :: Tree a -> [a]
 toList EmptyT          = []
 toList (NodeT x t1 t2) = leaves t1 ++ x : leaves t2
 
-node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 EmptyT EmptyT)
+node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 (NodeT 4 EmptyT EmptyT) EmptyT)
 
 -- 10. 
 -- Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
