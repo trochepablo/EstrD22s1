@@ -198,9 +198,6 @@ heightT :: Tree a -> Int
 heightT EmptyT          = 0
 heightT (NodeT x t1 t2) = 1 + max (heightT t1) (heightT t2)
 
--- Dado dos arboles evalua si el primero (tree1) es de mayor tamaño que el segundo (tree2)
-esDeMayorTamanio :: Tree a -> Tree a -> Bool
-esDeMayorTamanio tree1 tree2 = (sizeT tree1) > (sizeT tree2)
 -- 8. 
 -- Dado un árbol devuelve el árbol resultante de intercambiar el hijo izquierdo con el derecho,
 -- en cada nodo del árbol.
@@ -216,7 +213,7 @@ toList :: Tree a -> [a]
 toList EmptyT          = []
 toList (NodeT x t1 t2) = leaves t1 ++ x : leaves t2
 
-node1 = NodeT 1 (NodeT 2 (NodeT 4 (NodeT 6 EmptyT EmptyT) (NodeT 7 EmptyT EmptyT)) (NodeT 5 EmptyT EmptyT)) (NodeT 3 EmptyT EmptyT)
+node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 EmptyT EmptyT)
 
 -- 10. 
 -- Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
@@ -253,10 +250,12 @@ juntarNiveles (xs:xss) (ys: yss) = (xs ++ ys) : juntarNiveles xss yss
 -- 12. 
 ramaMasLarga :: Tree a -> [a]
 ramaMasLarga EmptyT          = []
-ramaMasLarga (NodeT x t1 t2) = 
-    if heightT t1 > heightT t2
-        then ramaMasLarga t1
-        else ramaMasLarga t2
+ramaMasLarga (NodeT x t1 t2) = x : elegirRamaMasLarga (ramaMasLarga t1) (ramaMasLarga t2)
+
+elegirRamaMasLarga :: [a] -> [a] -> [a]
+elegirRamaMasLarga lvs1 lvs2 = if length lvs1 > length lvs2
+                                    then lvs1
+                                    else lvs2 
 
 -- 13. 
 -- Dado un árbol devuelve todos los caminos, es decir, los caminos desde la raiz hasta las hojas.
