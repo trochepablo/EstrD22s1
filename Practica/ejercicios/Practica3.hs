@@ -1,13 +1,14 @@
 import Practica1
 
-data Color = Azul | Rojo
-data Celda = Bolita Color Celda | CeldaVacia
+data Color = Azul | Rojo deriving Show
+data Celda = Bolita Color Celda | CeldaVacia deriving Show
+bolitaUnaDeCada = Bolita Azul (Bolita Rojo CeldaVacia)
 
 -- Dados un color y una celda, indica la cantidad de bolitas de ese color. Nota: pensar si ya
 -- existe una operación sobre listas que ayude a resolver el problema.
 nroBolitas :: Color -> Celda -> Int
 nroBolitas c CeldaVacia    = 0
-nroBolitas c (Bolita cb b) = unoSi (sonMismoColor c cb)
+nroBolitas c (Bolita cb b) = unoSi (sonMismoColor c cb) + nroBolitas c b
 
 sonMismoColor :: Color -> Color -> Bool
 sonMismoColor Azul Azul = True 
@@ -16,8 +17,7 @@ sonMismoColor _    _    = False
 
 -- Dado un color y una celda, agrega una bolita de dicho color a la celda.
 poner :: Color -> Celda -> Celda
-poner c CeldaVacia    = Bolita c CeldaVacia
-poner c (Bolita cb b) = Bolita cb (Bolita c CeldaVacia)
+poner c bolita = (Bolita c bolita)
 
 -- Dado un color y una celda, quita una bolita de dicho color de la celda. Nota: a diferencia de
 -- Gobstones, esta función es total.
@@ -30,12 +30,9 @@ sacar c (Bolita cb b) =
 
 -- Dado un número n, un color c, y una celda, agrega n bolitas de color c a la celda.
 ponerN :: Int -> Color -> Celda -> Celda
-ponerN n c CeldaVacia = agregarNCantBolitas n c
-ponerN n c (Bolita cb b) = Bolita cb (ponerN n c b)
+ponerN 0 _ celda = celda
+ponerN n c celda = poner c (ponerN (n-1) c celda) 
 
-agregarNCantBolitas :: Int -> Color -> Celda
-agregarNCantBolitas 0 _ = CeldaVacia
-agregarNCantBolitas n c = Bolita c (agregarNCantBolitas (n-1) c)
 
 -- 1.2
 data Objeto = Cacharro | Tesoro
