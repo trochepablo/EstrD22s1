@@ -247,7 +247,7 @@ elementosPorLevel nodo n = levelN n nodo : elementosPorLevel nodo (n-1)
 ramaMasLarga :: Tree a -> [a]
 ramaMasLarga EmptyT = []
 ramaMasLarga (NodeT x t1 t2) = 
-    x : if (sizeT t1) > (sizeT t2)
+    x : if esDeMayorTamanio t1 t2
             then ramaMasLarga t1
             else ramaMasLarga t2
 
