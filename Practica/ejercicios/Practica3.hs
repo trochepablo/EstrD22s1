@@ -235,12 +235,22 @@ levelN n (NodeT x t1 t2) = levelN (n-1) t1 ++ levelN (n-1) t2
 -- Dado un árbol devuelve una lista de listas en la que cada elemento representa un nivel de
 -- dicho árbol.
 --
-listPerLevel :: Tree a -> [[a]]
-listPerLevel nodo = elementosPorLevel nodo (heightT nodo)
+-- listPerLevel :: Tree a -> [[a]]
+-- listPerLevel nodo = elementosPorLevel nodo (heightT nodo)
 
-elementosPorLevel :: Tree a -> Int -> [[a]]
-elementosPorLevel nodo 0 = [levelN 0 nodo]
-elementosPorLevel nodo n = levelN n nodo : elementosPorLevel nodo (n-1)
+-- elementosPorLevel :: Tree a -> Int -> [[a]]
+-- elementosPorLevel nodo 0 = [levelN 0 nodo]
+-- elementosPorLevel nodo n = levelN n nodo : elementosPorLevel nodo (n-1)
+
+listPerLevel :: Tree a -> [[a]]
+listPerLevel EmptyT          = []
+listPerLevel (NodeT x t1 t2) = [x] : juntarNiveles (listPerLevel t1) (listPerLevel t2)
+
+juntarNiveles :: [[a]] -> [[a]] -> [[a]]
+juntarNiveles []       yss       = yss
+juntarNiveles xss      []        = xss
+juntarNiveles (xs:xss) (ys: yss) = (xs ++ ys) : juntarNiveles xss yss
+
 
 -- Devuelve los elementos de la rama más larga del árbol
 -- 12. 
