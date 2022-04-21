@@ -194,8 +194,11 @@ aparicionesT e (NodeT x t1 t2)  = unoSi (x==e) + aparicionesT e t1 + apariciones
 -- 6. 
 -- Dado un árbol devuelve los elementos que se encuentran en sus hojas.
 leaves :: Tree a -> [a]
-leaves EmptyT          = []
-leaves (NodeT x t1 t2) = x : agregarHojasDe (leaves t1) ++ agregarHojasDe (leaves t2)
+leaves tree = sinElPrimero (obtenerHojas tree)
+
+obtenerHojas :: Tree a -> [a]
+obtenerHojas EmptyT          = []
+obtenerHojas (NodeT x t1 t2) = x : agregarHojasDe (obtenerHojas t1) ++ agregarHojasDe (obtenerHojas t2)
 
 agregarHojasDe :: [a] -> [a]
 agregarHojasDe []     = []
@@ -234,7 +237,7 @@ toList :: Tree a -> [a]
 toList EmptyT          = []
 toList (NodeT x t1 t2) = leaves t1 ++ x : leaves t2
 
-node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 (NodeT 4 EmptyT EmptyT) EmptyT)
+node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 (NodeT 4 EmptyT (NodeT 5 EmptyT EmptyT)) EmptyT)
 
 -- 10. 
 -- Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
