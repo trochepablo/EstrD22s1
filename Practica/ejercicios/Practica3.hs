@@ -180,7 +180,14 @@ aparicionesT e (NodeT x t1 t2)  = unoSi (x==e) + aparicionesT e t1 + apariciones
 -- Dado un árbol devuelve los elementos que se encuentran en sus hojas.
 leaves :: Tree a -> [a]
 leaves EmptyT          = []
-leaves (NodeT x t1 t2) = x : leaves t1 ++ leaves t2
+leaves (NodeT x t1 t2) = 
+    if isLeave t1 t2
+        then x : leaves t1 ++ leaves t2
+        else leaves t1 ++ leaves t2
+
+isLeave :: Tree a -> Tree a -> Bool
+isLeave EmptyT EmptyT = True
+isLeave _      _      = False
 
 -- 7. 
 -- Dado un árbol devuelve su altura.
