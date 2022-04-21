@@ -197,10 +197,13 @@ isLeave _      _      = False
 heightT :: Tree a -> Int
 heightT EmptyT          = 0
 heightT (NodeT x t1 t2) = 
-    if (sizeT t1) > (sizeT t2)
+    if esDeMayorTamanio t1 t2
         then 1 + heightT t1
         else 1 + heightT t2
 
+-- Dado dos arboles evalua si el primero (tree1) es de mayor tamaño que el segundo (tree2)
+esDeMayorTamanio :: Tree a -> Tree a -> Bool
+esDeMayorTamanio tree1 tree2 = (sizeT tree1) > (sizeT tree2)
 -- 8. 
 -- Dado un árbol devuelve el árbol resultante de intercambiar el hijo izquierdo con el derecho,
 -- en cada nodo del árbol.
