@@ -52,6 +52,8 @@ tesorosEntre = Nada (
                         )
                     )
 
+                    
+
 -- Indica si hay un cofre con un tesoro en el camino.
 hayTesoro :: Camino -> Bool
 hayTesoro Fin               = False
@@ -174,25 +176,14 @@ aparicionesT e (NodeT x t1 t2)  = unoSi (x==e) + aparicionesT e t1 + apariciones
 
 -- 6. 
 -- Dado un árbol devuelve los elementos que se encuentran en sus hojas.
+
 leaves :: Tree a -> [a]
-leaves tree = sinElPrimero (obtenerHojas tree)
+leaves EmptyT          = []
+leaves (NodeT x t1 t2) = agregarSiEsHoja x t1 t2 ++ leaves t1 ++ leaves t2
 
-obtenerHojas :: Tree a -> [a]
-obtenerHojas EmptyT          = []
-obtenerHojas (NodeT x t1 t2) = x : agregarHojasDe (obtenerHojas t1) ++ agregarHojasDe (obtenerHojas t2)
-
-agregarHojasDe :: [a] -> [a]
-agregarHojasDe []     = []
-agregarHojasDe (x:[]) = [x]
-agregarHojasDe (x:xs) = agregarHojasDe xs
-
-
--- leaves :: Tree a -> [a]
--- leaves (NodeT x t1 t2) =  hojasDe t1 ++ hojasDe t2
-
--- hojasDe :: Tree a -> [a]
--- hojasDe EmptyT = []
--- hojasDe (NodeT x t1 t2) = x : agregarHojasDe (hojasDe t1) ++ agregarHojasDe (hojasDe t2)
+agregarSiEsHoja :: a -> Tree a -> Tree a -> [a]
+agregarSiEsHoja e EmptyT EmptyT = [e]
+agregarSiEsHoja e _      _      = []
 
 -- 7. 
 -- Dado un árbol devuelve su altura.
@@ -218,7 +209,7 @@ toList :: Tree a -> [a]
 toList EmptyT          = []
 toList (NodeT x t1 t2) = leaves t1 ++ x : leaves t2
 
-node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 (NodeT 4 EmptyT (NodeT 5 EmptyT EmptyT)) EmptyT)
+node1 = NodeT 1 (NodeT 2 EmptyT EmptyT) (NodeT 3 (NodeT 4 EmptyT (NodeT 5 EmptyT (NodeT 6 EmptyT EmptyT))) EmptyT)
 
 -- 10. 
 -- Dados un número n y un árbol devuelve una lista con los nodos de nivel n. El nivel de un
