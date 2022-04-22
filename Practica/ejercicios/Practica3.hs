@@ -115,11 +115,16 @@ contarTesoros (Cofre xs camino) = cantTesorosEn xs + contarTesoros camino
 
 -- Precondicion: La cantidad de pasos hasta (n1) debe ser mayor a cantidad de pasos Desde (n2)
 cantTesorosEntre :: Int -> Int -> Camino -> Int
-cantTesorosEntre _  _  Fin             = 0
-cantTesorosEntre n1 n2 camino | n1 < 0 = 0
-cantTesorosEntre 0  0 camino           = cantDeTesorosEnCamino camino
-cantTesorosEntre 0  n2 camino          = cantDeTesorosEnCamino camino + cantTesorosEntre 0 (n2-1) (siguienteCamino camino)
-cantTesorosEntre n1 n2 camino          = cantTesorosEntre (n1-1) (n2-1) (siguienteCamino camino)
+cantTesorosEntre _  _  Fin               = 0
+cantTesorosEntre 0  n2 camino            = contarTesorosHasta n2 camino
+cantTesorosEntre n1 n2 (Nada camino)     = cantTesorosEntre (n1-1) (n2-1) camino
+cantTesorosEntre n1 n2 (Cofre xs camino) = cantTesorosEntre (n1-1) (n2-1) camino
+
+contarTesorosHasta :: Int -> Camino -> Int
+contarTesorosHasta _ Fin               = 0
+contarTesorosHasta 0 camino            = cantDeTesorosEnCamino camino
+contarTesorosHasta n (Nada camino)     = contarTesorosHasta (n-1) camino
+contarTesorosHasta n (Cofre xs camino) = cantTesorosEn xs + contarTesorosHasta (n-1) camino
 
 cantDeTesorosEnCamino :: Camino -> Int 
 cantDeTesorosEnCamino (Cofre xs _) = cantTesorosEn xs
