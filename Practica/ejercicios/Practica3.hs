@@ -93,38 +93,21 @@ esPasoCero :: Int -> Bool
 esPasoCero 0 = True
 esPasoCero _ = False
 
--- hayTesoroEn :: Int -> Camino -> Bool
--- hayTesoroEn 0 camino  = hayTesoroAqui camino
--- hayTesoroEn n camino  = hayTesoroEn (n-1) (siguienteCamino camino)
-
-
 siguienteCamino :: Camino -> Camino
 siguienteCamino Fin              = Fin   
 siguienteCamino (Nada camino)    = camino
 siguienteCamino (Cofre _ camino) = camino
 
--- hayTesoroAqui :: Camino -> Bool
--- hayTesoroAqui Fin          = False
--- hayTesoroAqui (Nada _)     = False
--- hayTesoroAqui (Cofre xs _) = hayTesoroEnObjetos xs
 
 -- Indica si hay al menos “n” tesoros en el camino.
+-- precondicion: la cantidad de tesoro n debe ser mayor a cero
 alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros 0 _             = True 
-alMenosNTesoros n Fin           = False
-alMenosNTesoros n camino        = alMenosNTesoros (restarCantTesorosAn n camino) (siguienteCamino camino)
+alMenosNTesoros n camino = (contarTesoros camino) >= n
 
-restarCantTesorosAn :: Int -> Camino -> Int      
-restarCantTesorosAn n (Cofre xs _) =
-    let cantTesorosMenosN = (n - cantTesorosEn xs) in
-    if cantTesorosMenosN < 0
-        then 0
-        else cantTesorosMenosN
-restarCantTesorosAn n _            = n
-
-cantTesorosEn :: [Objeto] -> Int
-cantTesorosEn []     = 0
-cantTesorosEn (x:xs) = unoSi (esTesoro x) + cantTesorosEn xs
+contarTesoros :: Camino -> Int
+contarTesoros Fin               = 0
+contarTesoros (Nada camino)     = contarTesoros camino
+contarTesoros (Cofre xs camino) = cantTesorosEn xs + contarTesoros camino
 
 -- Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 -- el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
@@ -142,7 +125,9 @@ cantDeTesorosEnCamino :: Camino -> Int
 cantDeTesorosEnCamino (Cofre xs _) = cantTesorosEn xs
 cantDeTesorosEnCamino _            = 0
 
-
+cantTesorosEn :: [Objeto] -> Int
+cantTesorosEn []     = 0
+cantTesorosEn (x:xs) = unoSi (esTesoro x) + cantTesorosEn xs
 
 
 caminoConDeTodo = Cofre [Cacharro, Cacharro] (Nada (Cofre [Cacharro,Tesoro] Fin))
