@@ -45,8 +45,7 @@ tesorosEntre = Nada (
                         Nada (
                             Cofre [Tesoro] (
                                 Nada (
-                                    Cofre [Tesoro, Tesoro] 
-                                    Fin)
+                                    Cofre [Tesoro, Tesoro] Fin)
                                     )
                             )
                         )
@@ -94,13 +93,17 @@ hayTesoroEnCamino _            = False
 
 -- Indica si hay al menos “n” tesoros en el camino.
 -- precondicion: la cantidad de tesoro n debe ser mayor a cero
-alMenosNTesoros :: Int -> Camino -> Bool
-alMenosNTesoros n camino = (contarTesoros camino) >= n
+alMenosNTesoros :: Int -> Camino -> Bool 
+alMenosNTesoros 0 camino                   = True
+alMenosNTesoros nTesoros Fin               = False
+alMenosNTesoros nTesoros (Nada camino)     = alMenosNTesoros nTesoros camino
+alMenosNTesoros nTesoros (Cofre xs camino) = alMenosNTesoros (restarTesorosA nTesoros xs) camino
 
-contarTesoros :: Camino -> Int
-contarTesoros Fin               = 0
-contarTesoros (Nada camino)     = contarTesoros camino
-contarTesoros (Cofre xs camino) = cantTesorosEn xs + contarTesoros camino
+restarTesorosA :: Int -> [Objeto] -> Int
+restarTesorosA nTesoros obs = 
+    if (nTesoros - cantTesorosEn obs) < 0
+        then 0
+        else nTesoros - cantTesorosEn obs
 
 -- Dado un rango de pasos, indica la cantidad de tesoros que hay en ese rango. Por ejemplo, si
 -- el rango es 3 y 5, indica la cantidad de tesoros que hay entre hacer 3 pasos y hacer 5. Están
