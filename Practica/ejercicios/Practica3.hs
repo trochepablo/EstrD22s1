@@ -1,4 +1,4 @@
-import Practica1
+import Practica1 ( unoSi )
 
 data Color = Azul | Rojo deriving Show
 data Celda = Bolita Color Celda | CeldaVacia deriving Show
@@ -111,20 +111,20 @@ restarTesorosA nTesoros obs =
 
 -- Precondicion: La cantidad de pasos hasta (n1) debe ser mayor a cantidad de pasos Desde (n2)
 cantTesorosEntre :: Int -> Int -> Camino -> Int
-cantTesorosEntre _  _  Fin               = 0
 cantTesorosEntre 0  n2 camino            = contarTesorosHasta n2 camino
+cantTesorosEntre _  _  Fin               = 0
 cantTesorosEntre n1 n2 (Nada camino)     = cantTesorosEntre (n1-1) (n2-1) camino
 cantTesorosEntre n1 n2 (Cofre xs camino) = cantTesorosEntre (n1-1) (n2-1) camino
 
 contarTesorosHasta :: Int -> Camino -> Int
+contarTesorosHasta 0 camino            = contarTesorosSiEsCofre camino
 contarTesorosHasta _ Fin               = 0
-contarTesorosHasta 0 camino            = cantDeTesorosEnCamino camino
 contarTesorosHasta n (Nada camino)     = contarTesorosHasta (n-1) camino
 contarTesorosHasta n (Cofre xs camino) = cantTesorosEn xs + contarTesorosHasta (n-1) camino
 
-cantDeTesorosEnCamino :: Camino -> Int 
-cantDeTesorosEnCamino (Cofre xs _) = cantTesorosEn xs
-cantDeTesorosEnCamino _            = 0
+contarTesorosSiEsCofre :: Camino -> Int 
+contarTesorosSiEsCofre (Cofre xs _) = cantTesorosEn xs
+contarTesorosSiEsCofre _            = 0
 
 cantTesorosEn :: [Objeto] -> Int
 cantTesorosEn []     = 0
