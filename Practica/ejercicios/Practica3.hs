@@ -1,3 +1,5 @@
+module Practica3 where
+
 import Practica1 ( unoSi )
 
 data Color = Azul | Rojo deriving Show
@@ -279,16 +281,24 @@ eval (Neg expA)        = eval expA * (-1)
 -- notación matemática convencional):
 
 simplificar :: ExpA -> ExpA
-simplificar (Sum expA expB)  = if esCero expA then expB else Sum expA expB
-simplificar (Prod expA expB) = if esCero expA || esCero expB then Prod expA (Valor 0) else Prod expA expB
-simplificar (Neg expA)       = expA
-simplificar expA             = expA
+simplificar (Valor n)    = Valor n
+simplificar (Sum expA expB)  = simplificarSum (simplificar expA) (simplificar expB)
+simplificar (Prod expA expB) = simplificarProd (simplificar expA) (simplificar expB)
+simplificar (Neg expA)      = simplificarNeg (simplificar expA)
 
-esCero :: ExpA -> Bool
-esCero (Valor n) = n == 0
-esCero _         = False
 
--- a) 0 + x = x + 0 = x
--- b) 0 * x = x * 0 = 0
--- c) 1 * x = x * 1 = x
--- d) - (- x) = x
+simplificarSum :: ExpA -> ExpA -> ExpA
+simplificarSum (Valor 0) expB   = expB
+simplificarSum expA (Valor 0)   = expA
+simplificarSum expA expB        = Sum expA expB
+
+simplificarProd :: ExpA -> ExpA -> ExpA
+simplificarProd (Valor 0) expB      = Valor 0
+simplificarProd expA (Valor 0)      = Valor 0
+simplificarProd (Valor 1) expB      = expB
+simplificarProd expA (Valor 1)      = expA
+simplificarProd expA expB           = Prod expA expB
+
+simplificarNeg :: ExpA -> ExpA
+simplificarNeg (Neg expA) = expA
+simplificarNeg expA       = (Neg expA)
