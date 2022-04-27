@@ -281,11 +281,11 @@ agregarTripulanteSiSectorPerteneceA ids sector tp =
         else sector
 
 agregarTripulanteASector :: Sector -> Tripulante -> Sector
-agregarTripulanteASector (S idSector cs tps) = (S idSector cs (tp:tps))
+agregarTripulanteASector (S idSector cs tps) tp = (S idSector cs (tp:tps))
 
 perteneceSectorA :: Sector -> [SectorId] -> Bool
 perteneceSectorA sector []       = False
-perteneceSectorA sector (id:ids) =  esMismoSector id sector || perteneceSectorA sector xs
+perteneceSectorA sector (id:ids) =  esMismoSector id sector || perteneceSectorA sector ids
 
 esMismoSector :: String -> Sector -> Bool
 esMismoSector id (S idSector _ _ ) = id == idSector
@@ -296,18 +296,18 @@ sectoresAsignados :: Tripulante -> Nave -> [SectorId]
 sectoresAsignados tp (N sector) = sectoresDeTripulante sector tp
 
 sectoresDeTripulante :: Tree Sector -> Tripulante -> [SectorId]
-sectoresDeTripulante Empty tp           = []
+sectoresDeTripulante EmptyT tp           = []
 sectoresDeTripulante (NodeT x t1 t2) tp = 
     if hayTripulanteEn x tp
-        then obtenerIdDelSector x : sectoresDeTripulante t1 ++ sectoresDeTripulante t2
-        else sectoresDeTripulante t1 ++ sectoresDeTripulante t2
+        then obtenerIdDelSector x : sectoresDeTripulante t1 tp ++ sectoresDeTripulante t2 tp
+        else sectoresDeTripulante t1 tp ++ sectoresDeTripulante t2 tp
 
 hayTripulanteEn :: Sector -> Tripulante -> Bool
 hayTripulanteEn (S _ _ tps) tp = perteneceTripulanteEn tp tps
 
 perteneceTripulanteEn :: Tripulante -> [Tripulante] -> Bool
 perteneceTripulanteEn tp []     = False
-perteneceTripulanteEn tp (x:xs) = x == tp || perteneceTripulanteEn xs
+perteneceTripulanteEn tp (x:xs) = x == tp || perteneceTripulanteEn tp xs
 
 -- Propósito: Devuelve la lista de tripulantes, sin elementos repetidos.
 -- 7. 
@@ -315,8 +315,8 @@ tripulantes :: Nave -> [Tripulante]
 tripulantes (N sector) = sinTripulantesRepetidos (tripulantesSinRepetidos sector)
 
 tripulantesSinRepetidos :: Tree Sector -> [Tripulante]
-tripulantesSinRepetidos EmptyT          =
-tripulantesSinRepetidos (NodeT x t1 t2) = obtenerTripulantes x : tripulantesSinRepetidos t1 ++ tripulantesSinRepetidos t2
+tripulantesSinRepetidos EmptyT          = []
+tripulantesSinRepetidos (NodeT x t1 t2) = obtenerTripulantes x ++ tripulantesSinRepetidos t1 ++ tripulantesSinRepetidos t2
 
 obtenerTripulantes :: Sector -> [Tripulante]
 obtenerTripulantes (S _ _ tps) = tps
@@ -330,18 +330,15 @@ sinTripulantesRepetidos (x:xs) =
 
 existeTripulanteEn :: Tripulante -> [Tripulante] -> Bool
 existeTripulanteEn _ []     = False
-existeTripulanteEn e (x:xs) = e == x || existeProyectoEn e xs
+existeTripulanteEn e (x:xs) = e == x || existeTripulanteEn e xs
 
 
-                        -- 4. Manada de lobos --    
-
+-- 4. Manada de lobos --
 type Presa = String -- nombre de presa
 type Territorio = String -- nombre de territorio
 type Nombre = String -- nombre de lobo
-data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
+data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cria Nombre
 data Manada = M Lobo
-
-
 
 -- 1. Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean
 -- crías. Resolver las siguientes funciones utilizando recursión estructural sobre la estructura
@@ -415,10 +412,19 @@ elegirEntre (nom1, c1) (nom2, c2) = if (c1>=c2) then (nom1, c1)
 -- pasaron por dicho territorio.
 -- 4. 
 losQueExploraron :: Territorio -> Manada -> [Nombre]
-losQueExploraron tr (M lobo) = nombresDeLobosExploradoresDe tr lobo
+losQueExploraron tr (M lobo) = nombresDeLobosExploradoresDeTerritorio tr lobo
 
 nombresDeLobosExploradoresDeTerritorio :: Territorio -> Lobo -> [Nombre]
-nombresDeLobosExploradoresDeTerritorio
+nombresDeLobosExploradoresDeTerritorio tr (Cria nm)                     = []
+nombresDeLobosExploradoresDeTerritorio tr (Cazador _ _ lob1 lob2 lob3)  = nombresDeLobosExploradoresDeTerritorio tr lob1 ++ nombresDeLobosExploradoresDeTerritorio tr lob2 ++ nombresDeLobosExploradoresDeTerritorio tr lob3
+nombresDeLobosExploradoresDeTerritorio tr (Explorador nm trs lob1 lob2) = 
+    if perteneceTeritorrioA tr trs
+        then nm : nombresDeLobosExploradoresDeTerritorio tr lob1 ++ nombresDeLobosExploradoresDeTerritorio tr lob2
+        else nombresDeLobosExploradoresDeTerritorio tr lob1 ++ nombresDeLobosExploradoresDeTerritorio tr lob2
+
+perteneceTeritorrioA :: Territorio -> [Territorio] -> Bool
+perteneceTeritorrioA tr []     = False
+perteneceTeritorrioA tr (x:xs) = tr == x || perteneceTeritorrioA tr xs
 
 -- 5. exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 -- Propósito: dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron
