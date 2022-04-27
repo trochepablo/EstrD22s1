@@ -84,6 +84,20 @@ esTesoro :: Objeto -> Bool
 esTesoro Tesoro = True
 esTesoro _      = False
 
+
+tesoro   = Tesoro
+chatarra = Chatarra
+objetosConUnoDeCada  = [tesoro,chatarra]
+objetosConTesoros    = [tesoro,tesoro]
+cofreVariado         = (Cofre objetosConUnoDeCada)
+cofreSoloTesoros     = (Cofre objetosConTesoros)
+cofreVacio           = (Cofre [])
+mapa1                = Fin cofreVacio
+mapa2                = (Bifurcacion cofreVariado mapa1 mapa1)
+mapa3                = (Bifurcacion cofreSoloTesoros mapa1 mapa2)
+mapa4                = (Bifurcacion cofreVacio mapa2 mapa3)
+mapa5                = (Bifurcacion cofreVacio mapa4 mapa3)
+
 -- Indica si al final del camino hay un tesoro. Nota: el final de un camino se representa con una
 -- lista vacía de direcciones.
 hayTesoroEn :: [Dir] -> Mapa -> Bool
@@ -100,14 +114,15 @@ esIzq _ = False
 
 -- Indica el camino al tesoro. Precondición: existe un tesoro y es único.
 caminoAlTesoro :: Mapa -> [Dir]
-caminoAlTesoro (Fin cofre)                   = []
+caminoAlTesoro (Fin cofre)                   = error "Debe existir un tesoro"
 caminoAlTesoro (Bifurcacion cofre map1 map2) = 
-    if hayTesoro map1
-    then Izq : caminoAlTesoro map1
-    else Der : caminoAlTesoro map2
+    if hayTesoroEnCofre cofre
+        then []
+        else if hayTesoro map1
+                then Izq : caminoAlTesoro map1
+                else Der : caminoAlTesoro map2
 
-
-singularSi x True  = x
+singularSi x True  = [x]
 singularSi _ False = []
 
 consACada :: a -> [[a]] -> [[a]]
@@ -237,7 +252,7 @@ agregarASector cs id (N sector) = N (agregarSectoresASectorConId cs id sector)
 
 agregarSectoresASectorConId :: [Componente] -> SectorId -> Tree Sector -> Tree Sector
 agregarSectoresASectorConId cs id EmptyT          = EmptyT
-agregarSectoresASectorConId cs id (NodeT x t1 t2) = (NodeT (agregarComponentesSiSectorEsID x id cs) (agregarSectoresASectorConId cs id t1) (agregarSectoresASectorConId cs id t2))
+agregarSectoresASectorConId cs id (NodeT x t1 t2) = NodeT (agregarComponentesSiSectorEsID x id cs) (agregarSectoresASectorConId cs id t1) (agregarSectoresASectorConId cs id t2)
 
 agregarComponentesSiSectorEsID :: Sector -> SectorId -> [Componente] -> Sector
 agregarComponentesSiSectorEsID (S sectorId cs ts) idABuscar csAAgregar = 
@@ -248,10 +263,168 @@ agregarComponentesSiSectorEsID (S sectorId cs ts) idABuscar csAAgregar =
 esSector :: String  -> String -> Bool 
 esSector id idABuscar = id == idABuscar
 
--- 5. asignarTripulanteA :: Tripulante -> [SectorId] -> Nave -> Nave
+
 -- Propósito: Incorpora un tripulante a una lista de sectores de la nave.
 -- Precondición: Todos los id de la lista existen en la nave.
+-- 5. 
+asignarTripulanteA :: Tripulante -> [SectorId] -> Nave -> Nave
+asignarTripulanteA tp ids (N sector) = N (asignarTripulantesASectores sector ids tp)
 
+asignarTripulantesASectores :: Tree Sector -> [SectorId] -> Tripulante -> Tree Sector
+asignarTripulantesASectores EmptyT ids tp          = EmptyT
+asignarTripulantesASectores (NodeT x t1 t2) ids tp = NodeT (agregarTripulanteSiSectorPerteneceA ids x tp) (asignarTripulantesASectores t1 ids tp) (asignarTripulantesASectores t2 ids tp)
 
--- 6. sectoresAsignados :: Tripulante -> Nave -> [SectorId]
+agregarTripulanteSiSectorPerteneceA :: [SectorId] -> Sector -> Tripulante -> Sector
+agregarTripulanteSiSectorPerteneceA ids sector tp = 
+    if perteneceSectorA sector ids
+        then agregarTripulanteASector sector tp
+        else sector
+
+agregarTripulanteASector :: Sector -> Tripulante -> Sector
+agregarTripulanteASector (S idSector cs tps) = (S idSector cs (tp:tps))
+
+perteneceSectorA :: Sector -> [SectorId] -> Bool
+perteneceSectorA sector []       = False
+perteneceSectorA sector (id:ids) =  esMismoSector id sector || perteneceSectorA sector xs
+
+esMismoSector :: String -> Sector -> Bool
+esMismoSector id (S idSector _ _ ) = id == idSector
+
 -- Propósito: Devuelve los sectores en donde aparece un tripulante dado.
+-- 6. 
+sectoresAsignados :: Tripulante -> Nave -> [SectorId]
+sectoresAsignados tp (N sector) = sectoresDeTripulante sector tp
+
+sectoresDeTripulante :: Tree Sector -> Tripulante -> [SectorId]
+sectoresDeTripulante Empty tp           = []
+sectoresDeTripulante (NodeT x t1 t2) tp = 
+    if hayTripulanteEn x tp
+        then obtenerIdDelSector x : sectoresDeTripulante t1 ++ sectoresDeTripulante t2
+        else sectoresDeTripulante t1 ++ sectoresDeTripulante t2
+
+hayTripulanteEn :: Sector -> Tripulante -> Bool
+hayTripulanteEn (S _ _ tps) tp = perteneceTripulanteEn tp tps
+
+perteneceTripulanteEn :: Tripulante -> [Tripulante] -> Bool
+perteneceTripulanteEn tp []     = False
+perteneceTripulanteEn tp (x:xs) = x == tp || perteneceTripulanteEn xs
+
+-- Propósito: Devuelve la lista de tripulantes, sin elementos repetidos.
+-- 7. 
+tripulantes :: Nave -> [Tripulante]
+tripulantes (N sector) = sinTripulantesRepetidos (tripulantesSinRepetidos sector)
+
+tripulantesSinRepetidos :: Tree Sector -> [Tripulante]
+tripulantesSinRepetidos EmptyT          =
+tripulantesSinRepetidos (NodeT x t1 t2) = obtenerTripulantes x : tripulantesSinRepetidos t1 ++ tripulantesSinRepetidos t2
+
+obtenerTripulantes :: Sector -> [Tripulante]
+obtenerTripulantes (S _ _ tps) = tps
+
+sinTripulantesRepetidos :: [Tripulante] -> [Tripulante]
+sinTripulantesRepetidos []     = []
+sinTripulantesRepetidos (x:xs) = 
+    if existeTripulanteEn x (sinTripulantesRepetidos xs)
+        then sinTripulantesRepetidos xs
+        else x : sinTripulantesRepetidos xs
+
+existeTripulanteEn :: Tripulante -> [Tripulante] -> Bool
+existeTripulanteEn _ []     = False
+existeTripulanteEn e (x:xs) = e == x || existeProyectoEn e xs
+
+
+                        -- 4. Manada de lobos --    
+
+type Presa = String -- nombre de presa
+type Territorio = String -- nombre de territorio
+type Nombre = String -- nombre de lobo
+data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
+data Manada = M Lobo
+
+
+
+-- 1. Construir un valor de tipo Manada que posea 1 cazador, 2 exploradores y que el resto sean
+-- crías. Resolver las siguientes funciones utilizando recursión estructural sobre la estructura
+-- que corresponda en cada caso:
+manada1 = M (Cazador "Tommy" [] (Explorador "Billy" [] (Cria "NoName1") (Cria "NoName2")) (Explorador "Sam" [] (Cria "NoName3") (Cria "NoName4")) (Cria "NoName5")) 
+
+-- Propósito: dada una manada, indica si la cantidad de alimento cazado es mayor a la cantidad de crías.
+-- 2. 
+
+buenaCaza :: Manada -> Bool
+buenaCaza m = cantidadDeAlimento m > cantidadDeCrias m
+
+cantidadDeAlimento :: Manada -> Int
+cantidadDeAlimento (M lobo) = cantidadDeAlimentoL lobo
+
+cantidadDeAlimentoL :: Lobo -> Int
+cantidadDeAlimentoL (Cazador _ presas l1 l2 l3) = alimentoEn presas
+                                                + cantidadDeAlimentoL l1
+                                                + cantidadDeAlimentoL l2
+                                                + cantidadDeAlimentoL l3
+cantidadDeAlimentoL (Explorador _ _ l1 l2)      = cantidadDeAlimentoL l1
+                                                + cantidadDeAlimentoL l2
+cantidadDeAlimentoL (Cria _)                    = 0
+
+alimentoEn :: [Presa] -> Int
+alimentoEn ps = length ps
+
+cantidadDeCrias :: Manada -> Int
+cantidadDeCrias (M lobo) = cantidadDeCriasL lobo
+
+cantidadDeCriasL :: Lobo -> Int
+cantidadDeCriasL (Cazador _ presas l1 l2 l3) = cantidadDeCriasL l1
+                                             + cantidadDeCriasL l2
+                                             + cantidadDeCriasL l3
+cantidadDeCriasL (Explorador _ _ l1 l2)      = cantidadDeCriasL l1
+                                             + cantidadDeCriasL l2
+cantidadDeCriasL (Cria _)                    = 1
+
+
+-- Propósito: dada una manada, devuelve el nombre del lobo con más presas cazadas, junto
+-- con su cantidad de presas. Nota: se considera que los exploradores y crías tienen cero presas
+-- cazadas, y que podrían formar parte del resultado si es que no existen cazadores con más de
+-- cero presas.
+-- 3. 
+elAlfa :: Manada -> (Nombre, Int)
+elAlfa (M lobo) = elAlfaL lobo
+
+elAlfaL :: Lobo -> (Nombre, Int)
+elAlfaL (Cazador nom presas l1 l2 l3) = elegirEntre (nom, alimentoEn presas)
+                                                    (elegirEntre (elAlfaL l1)
+                                                                 (elegirEntre (elAlfaL l2)
+                                                                              (elAlfaL l3)))
+elAlfaL (Explorador nom _ l1 l2)      = elegirEntre (elAlfaL l1)
+                                                    (elegirEntre (elAlfaL l2)
+                                                                 (nom, 0))
+elAlfaL (Cria nom)                    = (nom, 0)
+
+
+elegirEntre :: (Nombre, Int) -> (Nombre, Int) -> (Nombre, Int)
+elegirEntre (nom1, c1) (nom2, c2) = if (c1>=c2) then (nom1, c1)
+                                                else (nom2, c2)
+
+
+-- type Presa = String -- nombre de presa
+-- type Territorio = String -- nombre de territorio
+-- type Nombre = String -- nombre de lobo
+-- data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
+-- data Manada = M Lobo
+
+-- Propósito: dado un territorio y una manada, devuelve los nombres de los exploradores que
+-- pasaron por dicho territorio.
+-- 4. 
+losQueExploraron :: Territorio -> Manada -> [Nombre]
+losQueExploraron tr (M lobo) = nombresDeLobosExploradoresDe tr lobo
+
+nombresDeLobosExploradoresDeTerritorio :: Territorio -> Lobo -> [Nombre]
+nombresDeLobosExploradoresDeTerritorio
+
+-- 5. exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
+-- Propósito: dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron
+-- dicho territorio. Los territorios no deben repetirse.
+
+-- 6. superioresDelCazador :: Nombre -> Manada -> [Nombre]
+-- Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
+-- cazadores que tienen como subordinado al cazador dado (directa o indirectamente).
+-- Precondición: hay un cazador con dicho nombre y es único.
