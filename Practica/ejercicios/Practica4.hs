@@ -98,6 +98,13 @@ mapa3                = (Bifurcacion cofreSoloTesoros mapa1 mapa2)
 mapa4                = (Bifurcacion cofreVacio mapa2 mapa3)
 mapa5                = (Bifurcacion cofreVacio mapa4 mapa3)
 
+mapaIzqLargo = (Bifurcacion cofreVacio (Fin cofreVacio) mapa5)
+
+    --                                     mapa5
+    --                     mapa4                           mapa3
+    --         mapa2                 mapa3         mapa1             mapa2
+    -- mapa1           mapa1      mapa1   mapa2     
+
 -- Indica si al final del camino hay un tesoro. Nota: el final de un camino se representa con una
 -- lista vacía de direcciones.
 hayTesoroEn :: [Dir] -> Mapa -> Bool
@@ -118,9 +125,13 @@ caminoAlTesoro (Fin cofre)                   = error "Debe existir un tesoro"
 caminoAlTesoro (Bifurcacion cofre map1 map2) = 
     if hayTesoroEnCofre cofre
         then []
-        else if hayTesoro map1
-                then Izq : caminoAlTesoro map1
-                else Der : caminoAlTesoro map2
+        else elegirCaminoAlTesoro map1 map2
+
+elegirCaminoAlTesoro :: Mapa -> Mapa -> [Dir]
+elegirCaminoAlTesoro map1 map2 =   
+        if hayTesoro map1
+            then Izq : caminoAlTesoro map1
+            else Der : caminoAlTesoro map2
 
 singularSi x True  = [x]
 singularSi _ False = []
@@ -135,13 +146,15 @@ caminoDeLaRamaMasLarga :: Mapa -> [Dir]
 caminoDeLaRamaMasLarga (Fin cofre)                   = []
 caminoDeLaRamaMasLarga (Bifurcacion cofre map1 map2) = 
     elegirRamaMasLarga
-        (Izq : caminoDeLaRamaMasLarga map1)
-        (Der : caminoDeLaRamaMasLarga map2)
+        (caminoDeLaRamaMasLarga map1)
+        (caminoDeLaRamaMasLarga map2)
 
-elegirRamaMasLarga :: [a] -> [a] -> [a]
+elegirRamaMasLarga :: [Dir] -> [Dir] -> [Dir]
 elegirRamaMasLarga lvs1 lvs2 = if length lvs1 > length lvs2
-                                    then lvs1
-                                    else lvs2     
+                                    then Izq : lvs1
+                                    else Der : lvs2
+
+
 
 -- Devuelve los tesoros separados por nivel en el árbol.
 -- 5. 
@@ -172,7 +185,7 @@ juntarNiveles (xs:xss) (ys: yss) = (xs ++ ys) : juntarNiveles xss yss
 -- 6. 
 todosLosCaminos :: Mapa -> [[Dir]]
 todosLosCaminos (Fin cofre)           = []
-todosLosCaminos (Bifurcacion cofre map1 map2) = [] : consACada Izq (todosLosCaminos map1) ++ consACada Der (todosLosCaminos map2)
+todosLosCaminos (Bifurcacion cofre map1 map2) = consACada Izq (todosLosCaminos map1) ++ consACada Der (todosLosCaminos map2)
 
 
 
@@ -402,12 +415,6 @@ elegirEntre (nom1, c1) (nom2, c2) = if (c1>=c2) then (nom1, c1)
                                                 else (nom2, c2)
 
 
--- type Presa = String -- nombre de presa
--- type Territorio = String -- nombre de territorio
--- type Nombre = String -- nombre de lobo
--- data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
--- data Manada = M Lobo
-
 -- Propósito: dado un territorio y una manada, devuelve los nombres de los exploradores que
 -- pasaron por dicho territorio.
 -- 4. 
@@ -426,9 +433,65 @@ perteneceTeritorrioA :: Territorio -> [Territorio] -> Bool
 perteneceTeritorrioA tr []     = False
 perteneceTeritorrioA tr (x:xs) = tr == x || perteneceTeritorrioA tr xs
 
--- 5. exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 -- Propósito: dada una manada, denota la lista de los pares cuyo primer elemento es un territorio y cuyo segundo elemento es la lista de los nombres de los exploradores que exploraron
 -- dicho territorio. Los territorios no deben repetirse.
+-- 5. 
+
+-- type Presa = String -- nombre de presa
+-- type Territorio = String -- nombre de territorio
+-- type Nombre = String -- nombre de lobo
+-- data Lobo = Cazador Nombre [Presa] Lobo Lobo Lobo | Explorador Nombre [Territorio] Lobo Lobo | Cría Nombre
+-- data Manada = M Lobo
+
+
+-- manada = (M (Explorador "juan" ["lanus", "boca"] (Cazador "pepe" [] (
+--         Explorador "Cacho" ["lanus", "guernica"] (Cria "") (Cria "")
+--     ) (
+--         Cria ""
+--     ) (
+--         Explorador "flaco" ["boca", "mg", "city"] (Cria "") (Cria "")
+--     )) (Cria "criaza"))
+manada =  (M (Explorador "juan" ["lanus", "boca"] (Cria "") (Cria "")))
+
+exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
+exploradoresPorTerritorio (M lobo) = procesarTerritoriosDeLobo lobo
+
+procesarTerritoriosDeLobo :: Lobo -> [(Territorio, [Nombre])]
+procesarTerritoriosDeLobo (Cria _)                      = []
+procesarTerritoriosDeLobo (Cazador _ _ lob1 lob2 lob3)  = 
+    agregarATerritoriosSinRepetidos(
+            agregarATerritoriosSinRepetidos 
+                (procesarTerritoriosDeLobo lob1)
+                (procesarTerritoriosDeLobo lob2)
+        )
+        (procesarTerritoriosDeLobo lob3)
+procesarTerritoriosDeLobo (Explorador nm trs lob1 lob2) = 
+    agregarATerritoriosSinRepetidos
+            (agregarNombreATerritoriosExplorados nm trs (procesarTerritoriosDeLobo lob1))
+            (procesarTerritoriosDeLobo lob2)
+
+agregarNombreATerritoriosExplorados :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarNombreATerritoriosExplorados nm []     trs = trs
+agregarNombreATerritoriosExplorados nm (x:xs) trs = agregarNombreATerritoriosExplorados nm xs (agregarNombreATerritorioExplorado nm x trs) 
+
+
+agregarNombreATerritorioExplorado :: Nombre -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarNombreATerritorioExplorado nm tr []            = [(tr, [nm])]
+agregarNombreATerritorioExplorado nm tr ((t,nms):trs) = 
+    if t == tr
+        then (t, nm:nms):trs
+        else agregarNombreATerritorioExplorado nm tr trs
+
+agregarATerritoriosSinRepetidos :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarATerritoriosSinRepetidos []            trs2 = trs2
+agregarATerritoriosSinRepetidos ((t,nms):trs) trs2 = agregarATerritoriosSinRepetidos trs (agregarATerritorioSinRepetidos nms t trs2)
+
+agregarATerritorioSinRepetidos :: [Nombre] -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
+agregarATerritorioSinRepetidos nms tr []              = [(tr, nms)]
+agregarATerritorioSinRepetidos nms tr ((t, nms2):trs) =
+    if tr == t
+        then (t, nms++nms2):trs
+        else agregarATerritorioSinRepetidos nms tr trs
 
 -- 6. superioresDelCazador :: Nombre -> Manada -> [Nombre]
 -- Propósito: dado un nombre de cazador y una manada, indica el nombre de todos los
