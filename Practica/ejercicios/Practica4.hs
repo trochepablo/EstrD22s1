@@ -451,7 +451,7 @@ perteneceTeritorrioA tr (x:xs) = tr == x || perteneceTeritorrioA tr xs
 --     ) (
 --         Explorador "flaco" ["boca", "mg", "city"] (Cria "") (Cria "")
 --     )) (Cria "criaza"))
-manada =  (M (Explorador "juan" ["lanus", "boca"] (Cria "") (Cria "")))
+manada =  (M (Explorador "juan" ["lanus", "boca"] (Cria "") (Explorador "flaco" ["boca", "mg", "city"] (Cria "") (Cria ""))))
 
 exploradoresPorTerritorio :: Manada -> [(Territorio, [Nombre])]
 exploradoresPorTerritorio (M lobo) = procesarTerritoriosDeLobo lobo
@@ -471,8 +471,8 @@ procesarTerritoriosDeLobo (Explorador nm trs lob1 lob2) =
             (procesarTerritoriosDeLobo lob2)
 
 agregarNombreATerritoriosExplorados :: Nombre -> [Territorio] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-agregarNombreATerritoriosExplorados nm []     trs = trs
-agregarNombreATerritoriosExplorados nm (x:xs) trs = agregarNombreATerritoriosExplorados nm xs (agregarNombreATerritorioExplorado nm x trs) 
+agregarNombreATerritoriosExplorados nm []     trs = []
+agregarNombreATerritoriosExplorados nm (x:xs) trs = agregarNombreATerritorioExplorado nm x trs ++ agregarNombreATerritoriosExplorados nm xs trs 
 
 
 agregarNombreATerritorioExplorado :: Nombre -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
@@ -483,8 +483,8 @@ agregarNombreATerritorioExplorado nm tr ((t,nms):trs) =
         else agregarNombreATerritorioExplorado nm tr trs
 
 agregarATerritoriosSinRepetidos :: [(Territorio, [Nombre])] -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
-agregarATerritoriosSinRepetidos []            trs2 = trs2
-agregarATerritoriosSinRepetidos ((t,nms):trs) trs2 = agregarATerritoriosSinRepetidos trs (agregarATerritorioSinRepetidos nms t trs2)
+agregarATerritoriosSinRepetidos []            trs2 = []
+agregarATerritoriosSinRepetidos ((t,nms):trs) trs2 = agregarATerritorioSinRepetidos nms t trs2 ++ agregarATerritoriosSinRepetidos trs trs2
 
 agregarATerritorioSinRepetidos :: [Nombre] -> Territorio -> [(Territorio, [Nombre])] -> [(Territorio, [Nombre])]
 agregarATerritorioSinRepetidos nms tr []              = [(tr, nms)]
