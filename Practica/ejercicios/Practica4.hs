@@ -270,8 +270,8 @@ agregarSectoresASectorConId cs id (NodeT x t1 t2) = NodeT (agregarComponentesSiS
 agregarComponentesSiSectorEsID :: Sector -> SectorId -> [Componente] -> Sector
 agregarComponentesSiSectorEsID (S sectorId cs ts) idABuscar csAAgregar = 
     if esSector sectorId idABuscar 
-        then (S sectorId (cs ++ csAAgregar) ts)
-        else (S sectorId cs ts)
+        then S sectorId (cs ++ csAAgregar) ts
+        else S sectorId cs ts
 
 esSector :: String  -> String -> Bool 
 esSector id idABuscar = id == idABuscar
