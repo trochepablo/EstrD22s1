@@ -50,7 +50,7 @@ append [] ys = ys
 append (x:xs) ys = x : append xs ys
 
 -- Sin repetidos
--- Costo: constante
+-- Costo: Lineal
 setToList :: Eq a => Set a -> [a]
 setToList (ConsS xs) = sinRepetidos xs
 

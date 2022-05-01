@@ -15,7 +15,7 @@ emptyS :: Set a
 -- Crea un conjunto vacío.
 emptyS = ConS []
 
--- costo: 
+-- costo: lineal
 addS :: Eq a => a -> Set a -> Set a
 -- Dados un elemento y un conjunto, agrega el elemento al conjunto.
 addS e conjunto = 
