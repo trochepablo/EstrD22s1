@@ -3,7 +3,7 @@ module Queue3 (Queue, emptyQ, isEmptyQ, queue, firstQ, dequeue) where
 data Queue a = ConsQ [a] [a] deriving Show
 {-
     INV.REP: En ConsQ [] se cumple que:
-        * Los elementos deben encolarse al final de la lista y desencolarse por delante
+        * Si fs se encuentra vacía, entonces la cola se encuentra vacía.
 -}
 
 -- Costo: Constante
