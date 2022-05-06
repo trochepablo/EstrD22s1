@@ -58,7 +58,7 @@ sacarUno x (y:ys) =
 -- Costo: cuadratica
 unionS :: Eq a => Set a -> Set a -> Set a
 -- Dados dos conjuntos devuelve un conjunto con todos los elementos de ambos. conjuntos.
-unionS (ConS xs) (ConS ys) = ConS (unirListas xs ys)
+unionS (ConS xs) (ConS ys) = ConS (xs ++ ys)
 
 -- Costo: cuadratica
 unirListas :: Eq a => [a] -> [a] -> [a]
