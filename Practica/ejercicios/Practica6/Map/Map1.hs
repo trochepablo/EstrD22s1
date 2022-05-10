@@ -1,6 +1,6 @@
 module Map1 (Map, emptyM, assocM, lookupM, deleteM, domM) where
 
-data Map k v = MP [(k, v)]
+data Map k v = MP [(k, v)] deriving Show
 {-
     INV.REP: En (MP kvs) se cumple:
         * en kvs no hay claves repetidas
