@@ -6,8 +6,12 @@ import Map1
 indexar :: [a] -> Map Int a
 -- Propósito: dada una lista de elementos construye un map que relaciona cada elemento con
 -- su posición en la lista.
-indexar []     = emptyM
-indexar (x:xs) = assocM x (length xs) (indexar xs)
+indexar xs = armarMapDe 0 xs
+
+armarMapDe :: [a] -> Map Int a
+armarMapDe []     _ = emptyM
+armarMapDe (x:xs) n = assocM n x (armarMapDe (n+1) xs)
+
 
 -- costo: O((n*m)^2) siendo n la logitud de la primer lista y m de la segunda 
 ocurrencias :: String -> Map Char Int
