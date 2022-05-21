@@ -108,7 +108,7 @@ incrementar (k:ks) m = assocM k (fromJust (lookupM k m)+1) (incrementar ks m)
 mergeMaps:: Ord k => Map k v -> Map k v -> Map k v
 -- Propósito: dado dos maps se agregan las claves y valores del primer map en el segundo. Si
 -- una clave del primero existe en el segundo, es reemplazada por la del primero.
--- costo: O(N * (log N + log K)) 
+-- costo: O(N * (log N + log K)) siendo N la cantidad de claves del primer map y N las del segundo map
 mergeMaps map1 map2 = agregarValoresEn (domM map1) map1 map2
 
 
