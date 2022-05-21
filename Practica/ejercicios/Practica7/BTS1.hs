@@ -10,7 +10,7 @@ data Tree a = EmptyT | NodeT a (Tree a) (Tree a) deriving Show
 data BTS a = ConsBST (Tree a) deriving Show
 {-
     INV. REP.: en (ConsBST t) t cumple ser un BST y estar balanceado
--}
+-}-
 
 -- 1. 
 -- justificacion: Por cada nodo de t se realiza una operación constante (==) 
