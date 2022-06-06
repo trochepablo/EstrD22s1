@@ -32,7 +32,7 @@ hayValor _       = True
 -- justificacion: porque assocM es de costo O(K * log K)
 listToMap :: Ord k => [(k, v)] -> Map k v
 -- Propósito: convierte una lista de pares clave valor en un map.
--- costo: O(N * log K) siendo K la cantidad de claves del map y N la lista de tuplas clave-map a asociar en map
+-- costo: O(N log K) siendo K la cantidad de claves del map y N la lista de tuplas clave-map a asociar en map
 listToMap []           = emptyM
 listToMap ((k,v): kvs) = assocM k v (listToMap kvs)
 
@@ -108,21 +108,21 @@ incrementar (k:ks) m = assocM k (fromJust (lookupM k m)+1) (incrementar ks m)
 mergeMaps:: Ord k => Map k v -> Map k v -> Map k v
 -- Propósito: dado dos maps se agregan las claves y valores del primer map en el segundo. Si
 -- una clave del primero existe en el segundo, es reemplazada por la del primero.
--- costo: O(N * (log N + log K)) siendo N la cantidad de claves del primer map y N las del segundo map
+-- costo: O(N * (log N + log K)) siendo N la cantidad de claves del primer map y K las del segundo map
 mergeMaps map1 map2 = agregarValoresEn (domM map1) map1 map2
 
 
--- justificacion: porque por cada elemento de N realizar una operacion O(log N) <<assocM>>
--- y, luego, opera con obtenerValorPorClave de costo O(log K)
+-- justificacion: porque por cada elemento de N realiza una operacion O(log K) <<assocM>> 
+-- y tambien opera con <<obtenerValorPorClave>> de costo O(log N)
 agregarValoresEn :: Ord k => [k] -> Map k v -> Map k v -> Map k v
--- costo: O(N * (log N + log K)) siendo N la cantidad de claves del primer map y N las del segundo map
+-- costo: O(N * (log N + log K)) siendo N la cantidad de claves del primer map y K las del segundo map
 agregarValoresEn []     m1 m2 = m2 
 agregarValoresEn (k:ks) m1 m2 = assocM k (obtenerValorPorClave k m1) (agregarValoresEn ks m1 m2)
-                            --  O(log N)            O(log K)
+                            --  O(log K)            O(log N)
 
--- justificacion: siendo lookupM el peor caso posible O(log K) y fromjust como operacion constante (PM)
+-- justificacion: siendo lookupM el peor caso posible O(log N) y fromjust como operacion constante (PM)
 obtenerValorPorClave :: Ord k => k -> Map k v -> v
 -- proposito:
--- costo: O(log K) siendo K las claves del map 
+-- costo: O(log N) siendo N las claves del map 
 obtenerValorPorClave k m1 = fromJust (lookupM k m1)
---                                    O(log K)
+--                                    O(log N)
