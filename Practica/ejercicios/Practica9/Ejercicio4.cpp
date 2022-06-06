@@ -1,11 +1,6 @@
 #include <iostream>
 using namespace std;
 
-// Online C++ compiler to run C++ program online
-#include <iostream>
-using namespace std;
-
-
 void printN(int n, string s){
     for (int i=0; i < n; i++)
     {
