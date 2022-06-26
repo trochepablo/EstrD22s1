@@ -21,9 +21,20 @@ struct ITreeSt {
 
 struct ImgSt {
     // COMPLETAR
+    int heigth;
+    int width;
+    int size;
+    ITreeSt* imgTree;
 };
  /* INV.REP.
     // COMPLETAR
+     {- INV.REP.: IT w h s t
+        * s = size t
+        * s <= w*h
+        * en t, 
+           - cada nodo H tiene todos hijos V o S
+           - cada nodo V tiene todos hijos H o S
+     -}
  */
 
 //---------------------------------------------------------
@@ -31,6 +42,7 @@ struct ImgSt {
 //---------------------------------------------------------
 int sizeImg(Img img) {
     // COMPLETAR
+    return img->size;
 }
 
 //---------------------------------------------------------
@@ -40,11 +52,26 @@ int sizeImg(Img img) {
 ITreeSt* loadIT(int iw, int ih
                ,int fw, int fh
                ,int n, Matrix m, DIR d) {
+  for (int i = iw; i < fw; i++)
+  {
+    for (int j = ih; j < fh; j++)
+    {
+      M_getAt(m, i, j);
+    }
+  }
+  
 }
 
 // PRECOND: w es potencia de 2, m es de w*w
 Img createImg(Matrix m, int w) {
   // COMPLETAR
+  int dimension = w*w;
+  Img* img = new Img;
+  img.heigth = m->height;
+  img.width = m->width;
+  img.size = dimension;
+  img->imgTree = loadIT(1,1,m->width, m->height, dimension, m, HORIZONTAL);
+  return img;
 }
 
 //---------------------------------------------------------

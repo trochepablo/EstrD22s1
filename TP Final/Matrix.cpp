@@ -15,7 +15,7 @@ Matrix M_new(int w, int h, Color c) {
     elems[i] = new Color[h];
     for(int j=0;j<h;j++) {
       elems[i][j] = c;
-    } 
+    }
   }
   return M_load(elems,w,h);
 }
