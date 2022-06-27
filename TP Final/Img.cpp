@@ -1,9 +1,11 @@
 #include "Img.h"
+#include "Color.h"
 
 #define DIR        int
 #define HOJA       99
 #define HORIZONTAL 42
 #define VERTICAL   17
+#define UNITSIZE   50
 
 struct ITreeSt {     
     DIR      division;    
@@ -52,25 +54,43 @@ int sizeImg(Img img) {
 ITreeSt* loadIT(int iw, int ih
                ,int fw, int fh
                ,int n, Matrix m, DIR d) {
-  for (int i = iw; i < fw; i++)
+  if (n == 1)
   {
-    for (int j = ih; j < fh; j++)
-    {
-      M_getAt(m, i, j);
-    }
+    ITreeSt* leave = new ITreeSt;
+    leave->color = M_getAt(m, iw, ih);
+    leave->division = NULL;
+    leave->first = NULL;
+    leave->second = NULL;
+    return leave;
   }
-  
+  if (d == HORIZONTAL)
+  {
+    ITreeSt* node = new ITreeSt;
+    node->color = NULL;
+    node->division = HORIZONTAL;
+    node->first = loadIT(iw, ih, fw, fh/2, n/2, m, VERTICAL);
+    node->second = loadIT(iw, ih+fh/2, fw, fh/2, n/2, m, VERTICAL);
+    return node;
+  }
+  else if (d == VERTICAL) {
+    ITreeSt* node = new ITreeSt;
+    node->color = NULL;
+    node->division = VERTICAL;
+    node->first = loadIT(iw, ih, fw, fh/2, n/2, m, HORIZONTAL);
+    node->second = loadIT(iw+fw/2, ih, fw, fh/2, n/2, m, HORIZONTAL);
+    return node;
+  }
 }
 
 // PRECOND: w es potencia de 2, m es de w*w
 Img createImg(Matrix m, int w) {
   // COMPLETAR
   int dimension = w*w;
-  Img* img = new Img;
-  img.heigth = m->height;
-  img.width = m->width;
-  img.size = dimension;
-  img->imgTree = loadIT(1,1,m->width, m->height, dimension, m, HORIZONTAL);
+  ImgSt* img = new ImgSt;
+  img->heigth = M_height(m);
+  img->width = M_width(m);
+  img->size = dimension;
+  img->imgTree = loadIT(1, 1, M_width(m), M_height(m), dimension, m, HORIZONTAL);
   return img;
 }
 
@@ -91,8 +111,47 @@ void CompressImg(Img img) {
 //---------------------------------------------------------
 // AUXILIAR SUGERIDA
 void RenderIT(int x, int y, int w, int h, ITreeSt* t) {
+  if (t->color!=NULL&&t->first==NULL&&t->second==NULL)
+  {
+    RenderBlock(x, y, w, h, t->color);
+  }
+  
+  if (t->color==NULL && t->division==HORIZONTAL)
+  {
+    RenderIT(x, y, w, (h/2), t->first);
+    RenderIT(x, y+(h/2), w, (h/2), t->second);
+  }
+  else if (t->color==NULL && t->division==VERTICAL)
+  {
+    RenderIT(x, y, (w/2),h, t->first);  
+    RenderIT(x+(w/2),y,(w/2), h, t->second);
+  }
 }
 
 void RenderImg(Img img) {
   // COMPLETAR
+  WrapSVGTagAndRenderContent(img);
+}
+
+void WrapSVGTagAndRenderContent(Img img) {
+  int w = img->width;
+  int h = img->heigth;
+  cout << "<svg height=\"" << renderSize(h) << "\""
+        << " width=\"" << renderSize(w) << "\">";
+  RenderIT(0, 0, w, h, img->imgTree);
+  cout << "\n</svg>" << endl;
+}
+
+int renderSize(int s){
+  return (UNITSIZE * s);
+}
+
+void RenderBlock(int x, int y, int w, int h, Color c) {
+  cout << "\n<rect x=\"" << renderSize(x) << '\"'
+  << " y=\"" << renderSize(y) << '\"'
+  << " width=\"" << renderSize(w) << '\"'
+  << " height=\"" << renderSize(h) << '\"'
+  << " style=\" fill:"; RenderColor(c, 4);
+  cout << ";stroke-width:3;stroke:rgb(0,0,0)\""
+  << " />";
 }
