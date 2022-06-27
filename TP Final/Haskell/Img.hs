@@ -95,8 +95,10 @@ half n = n `div` 2
 
 loadIT :: Width -> Height -> Width -> Height -> Size -> M.Matrix C.Color -> Dir -> ITree
 loadIT iw ih fw fh 1 m _ = S (M.getAt m iw ih)
+
 loadIT iw ih fw fh n m H = N H (loadIT iw           ih           fw (half fh) (half n) m V)
                                (loadIT iw           (ih+half fh) fw (half fh) (half n) m V)
+
 loadIT iw ih fw fh n m V = N V (loadIT iw           ih           (half fw) fh (half n) m H)
                                (loadIT (iw+half fw) ih           (half fw) fh (half n) m H)
 

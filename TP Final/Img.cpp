@@ -58,7 +58,6 @@ ITreeSt* loadIT(int iw, int ih
   {
     ITreeSt* leave = new ITreeSt;
     leave->color = M_getAt(m, iw, ih);
-    leave->division = NULL;
     leave->first = NULL;
     leave->second = NULL;
     return leave;
@@ -80,6 +79,7 @@ ITreeSt* loadIT(int iw, int ih
     node->second = loadIT(iw+fw/2, ih, fw, fh/2, n/2, m, HORIZONTAL);
     return node;
   }
+  return new ITreeSt;
 }
 
 // PRECOND: w es potencia de 2, m es de w*w
@@ -100,6 +100,7 @@ Img createImg(Matrix m, int w) {
 // AUXILIAR SUGERIDA
 // OBS: el int retornado es la cantidad final de hojas del t luego de modificarlo
 int CompressIT(ITreeSt* t) {  
+  return 0;
 }
 
 void CompressImg(Img img) {
@@ -110,6 +111,20 @@ void CompressImg(Img img) {
 // RenderImg
 //---------------------------------------------------------
 // AUXILIAR SUGERIDA
+int renderSize(int s){
+  return (UNITSIZE * s);
+}
+
+void RenderBlock(int x, int y, int w, int h, Color c) {
+  cout << "\n<rect x=\"" << renderSize(x) << '\"'
+  << " y=\"" << renderSize(y) << '\"'
+  << " width=\"" << renderSize(w) << '\"'
+  << " height=\"" << renderSize(h) << '\"'
+  << " style=\" fill:"; RenderColor(c, 4);
+  cout << ";stroke-width:3;stroke:rgb(0,0,0)\""
+  << " />";
+}
+
 void RenderIT(int x, int y, int w, int h, ITreeSt* t) {
   if (t->color!=NULL&&t->first==NULL&&t->second==NULL)
   {
@@ -128,11 +143,6 @@ void RenderIT(int x, int y, int w, int h, ITreeSt* t) {
   }
 }
 
-void RenderImg(Img img) {
-  // COMPLETAR
-  WrapSVGTagAndRenderContent(img);
-}
-
 void WrapSVGTagAndRenderContent(Img img) {
   int w = img->width;
   int h = img->heigth;
@@ -142,16 +152,7 @@ void WrapSVGTagAndRenderContent(Img img) {
   cout << "\n</svg>" << endl;
 }
 
-int renderSize(int s){
-  return (UNITSIZE * s);
-}
-
-void RenderBlock(int x, int y, int w, int h, Color c) {
-  cout << "\n<rect x=\"" << renderSize(x) << '\"'
-  << " y=\"" << renderSize(y) << '\"'
-  << " width=\"" << renderSize(w) << '\"'
-  << " height=\"" << renderSize(h) << '\"'
-  << " style=\" fill:"; RenderColor(c, 4);
-  cout << ";stroke-width:3;stroke:rgb(0,0,0)\""
-  << " />";
+void RenderImg(Img img) {
+  // COMPLETAR
+  WrapSVGTagAndRenderContent(img);
 }

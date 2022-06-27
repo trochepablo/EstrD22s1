@@ -64,5 +64,5 @@ void add(int x, ArrayList xs) {
 
 //Borra el último elemento de la lista.
 void remove(ArrayList xs) {
-    xs->elementos[(xs->cantidad-1)] = NULL;
+    xs->cantidad = xs->cantidad - 1;
 }
