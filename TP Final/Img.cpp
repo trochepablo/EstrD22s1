@@ -67,19 +67,18 @@ ITreeSt* loadIT(int iw, int ih
     ITreeSt* node = new ITreeSt;
     node->color = NULL;
     node->division = HORIZONTAL;
-    node->first = loadIT(iw, ih, fw, fh/2, n/2, m, VERTICAL);
-    node->second = loadIT(iw, ih+fh/2, fw, fh/2, n/2, m, VERTICAL);
+    node->first = loadIT(iw, ih, fw, (fh/2), (n/2), m, VERTICAL);
+    node->second = loadIT(iw, ih+(fh/2), fw, (fh/2), (n/2), m, VERTICAL);
     return node;
   }
   else if (d == VERTICAL) {
     ITreeSt* node = new ITreeSt;
     node->color = NULL;
     node->division = VERTICAL;
-    node->first = loadIT(iw, ih, fw, fh/2, n/2, m, HORIZONTAL);
-    node->second = loadIT(iw+fw/2, ih, fw, fh/2, n/2, m, HORIZONTAL);
+    node->first = loadIT(iw, ih, (fw/2), fh, (n/2), m, HORIZONTAL);
+    node->second = loadIT(iw+(fw/2), ih, (fw/2), fh, n/2, m, HORIZONTAL);
     return node;
   }
-  return new ITreeSt;
 }
 
 // PRECOND: w es potencia de 2, m es de w*w
@@ -120,7 +119,7 @@ void RenderBlock(int x, int y, int w, int h, Color c) {
   << " y=\"" << renderSize(y) << '\"'
   << " width=\"" << renderSize(w) << '\"'
   << " height=\"" << renderSize(h) << '\"'
-  << " style=\" fill:"; RenderColor(c, 4);
+  << " style=\" fill:"; RenderColor(c, 0);
   cout << ";stroke-width:3;stroke:rgb(0,0,0)\""
   << " />";
 }
