@@ -62,23 +62,21 @@ ITreeSt* loadIT(int iw, int ih
     leave->second = NULL;
     return leave;
   }
+  ITreeSt* node = new ITreeSt;
   if (d == HORIZONTAL)
   {
-    ITreeSt* node = new ITreeSt;
     node->color = NULL;
     node->division = HORIZONTAL;
     node->first = loadIT(iw, ih, fw, (fh/2), (n/2), m, VERTICAL);
     node->second = loadIT(iw, ih+(fh/2), fw, (fh/2), (n/2), m, VERTICAL);
-    return node;
   }
   else if (d == VERTICAL) {
-    ITreeSt* node = new ITreeSt;
     node->color = NULL;
     node->division = VERTICAL;
     node->first = loadIT(iw, ih, (fw/2), fh, (n/2), m, HORIZONTAL);
     node->second = loadIT(iw+(fw/2), ih, (fw/2), fh, n/2, m, HORIZONTAL);
-    return node;
   }
+  return node;
 }
 
 // PRECOND: w es potencia de 2, m es de w*w
