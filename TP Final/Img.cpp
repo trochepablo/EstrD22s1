@@ -94,14 +94,69 @@ Img createImg(Matrix m, int w) {
 //---------------------------------------------------------
 // CompressImg
 //---------------------------------------------------------
-// AUXILIAR SUGERIDA
+// AUXILIARES
+bool isLeave(ITreeSt* t) { return t->color!=NULL&&t->first==NULL&&t->second==NULL; }
+
+int BuildH(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
+  if (isLeave(t1) && isLeave(t2))
+  {
+    if (t1->color==t2->color)
+    {
+      t->color = t1->color;
+      t->first = NULL;
+      t->second = NULL;
+      return 1;
+    } else {
+      t->division = HORIZONTAL;
+      return 2;
+    }
+  } else {
+    return n1 + n2;
+  }
+}
+
+int BuildV(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
+  if (isLeave(t1) && isLeave(t2))
+  {
+    if (t1->color==t2->color)
+    {
+      t->color = t1->color;
+      t->first = NULL;
+      t->second = NULL;
+      return 1;
+    } else {
+      t->division = VERTICAL;
+      return 2;
+    }
+  } else {
+    return n1 + n2;
+  }
+}
+
 // OBS: el int retornado es la cantidad final de hojas del t luego de modificarlo
-int CompressIT(ITreeSt* t) {  
-  return 0;
+int CompressIT(ITreeSt* t) {
+  int amountOfTotalLeaves = 0;
+  if (t->color!=NULL&&t->first==NULL&&t->second==NULL)
+  {
+    return 1;
+  }
+
+  int amountOfLeaves1 = CompressIT(t->first);
+  int amountOfLeaves2 = CompressIT(t->second);
+  if (t->color==NULL && t->division==HORIZONTAL)
+  {
+    amountOfTotalLeaves += BuildH(amountOfLeaves1, amountOfLeaves2, t->first, t->second, t);
+  }
+  else if (t->color==NULL && t->division==VERTICAL)
+  {
+    amountOfTotalLeaves += BuildV(amountOfLeaves1, amountOfLeaves2, t->first, t->second, t);
+  }
+  return amountOfTotalLeaves;
 }
 
 void CompressImg(Img img) {
   // COMPLETAR
+  img->size = CompressIT(img->imgTree);
 }
 
 //---------------------------------------------------------
