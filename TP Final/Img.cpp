@@ -97,7 +97,7 @@ Img createImg(Matrix m, int w) {
 // AUXILIARES
 bool isLeave(ITreeSt* t) { return t->color!=NULL&&t->first==NULL&&t->second==NULL; }
 
-int BuildH(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
+int BuildNode(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
   if (isLeave(t1) && isLeave(t2))
   {
     if (t1->color==t2->color)
@@ -107,25 +107,6 @@ int BuildH(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
       t->second = NULL;
       return 1;
     } else {
-      t->division = HORIZONTAL;
-      return 2;
-    }
-  } else {
-    return n1 + n2;
-  }
-}
-
-int BuildV(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
-  if (isLeave(t1) && isLeave(t2))
-  {
-    if (t1->color==t2->color)
-    {
-      t->color = t1->color;
-      t->first = NULL;
-      t->second = NULL;
-      return 1;
-    } else {
-      t->division = VERTICAL;
       return 2;
     }
   } else {
@@ -135,21 +116,12 @@ int BuildV(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
 
 // OBS: el int retornado es la cantidad final de hojas del t luego de modificarlo
 int CompressIT(ITreeSt* t) {
-  int amountOfTotalLeaves = 0;
-  if (t->color!=NULL&&t->first==NULL&&t->second==NULL)
+  int amountOfTotalLeaves = 1;
+  if (!isLeave(t))
   {
-    return 1;
-  }
-
-  int amountOfLeaves1 = CompressIT(t->first);
-  int amountOfLeaves2 = CompressIT(t->second);
-  if (t->color==NULL && t->division==HORIZONTAL)
-  {
-    amountOfTotalLeaves += BuildH(amountOfLeaves1, amountOfLeaves2, t->first, t->second, t);
-  }
-  else if (t->color==NULL && t->division==VERTICAL)
-  {
-    amountOfTotalLeaves += BuildV(amountOfLeaves1, amountOfLeaves2, t->first, t->second, t);
+    int amountOfLeaves1 = CompressIT(t->first);
+    int amountOfLeaves2 = CompressIT(t->second);
+    amountOfTotalLeaves += BuildNode(amountOfLeaves1, amountOfLeaves2, t->first, t->second, t);
   }
   return amountOfTotalLeaves;
 }
@@ -178,12 +150,11 @@ void RenderBlock(int x, int y, int w, int h, Color c) {
 }
 
 void RenderIT(int x, int y, int w, int h, ITreeSt* t) {
-  if (t->color!=NULL&&t->first==NULL&&t->second==NULL)
+  if (isLeave(t))
   {
     RenderBlock(x, y, w, h, t->color);
-  }
-  
-  if (t->color==NULL && t->division==HORIZONTAL)
+  } 
+  else if (t->color==NULL && t->division==HORIZONTAL)
   {
     RenderIT(x, y, w, (h/2), t->first);
     RenderIT(x, y+(h/2), w, (h/2), t->second);
