@@ -13,8 +13,9 @@ struct ITreeSt {
     ITreeSt* first;    
     ITreeSt* second;
 };
- /* INV.REP.
-    // COMPLETAR
+ /* INV.REP.:
+      * si color es null entonces first y second no son null
+      * si first y second no son null entonces color es null
     OBS: si division es
       - HOJA, entonces color es el color del bloque representado  
       - HORIZONTAL, entonces first es la parte izquierda y second la derecha
@@ -30,27 +31,17 @@ struct ImgSt {
 };
  /* INV.REP.
     // COMPLETAR
-     {- INV.REP.: IT w h s t
-        * s = size t
-        * s <= w*h
-        * en t, 
-           - cada nodo H tiene todos hijos V o S
-           - cada nodo V tiene todos hijos H o S
+     {- INV.REP.:
+        * size = size imgTree
+        * size <= width*heigth
+        * imgTree no es null
+        * en imgTree, 
+           - cada nodo H tiene todos hijos ITreeSt
+           - cada nodo V tiene todos hijos ITreeSt
      -}
  */
 
-//---------------------------------------------------------
-// sizeImg
-//---------------------------------------------------------
-int sizeImg(Img img) {
-    // COMPLETAR
-    return img->size;
-}
-
-//---------------------------------------------------------
-// createImg
-//---------------------------------------------------------
-// AUXILIAR SUGERIDA
+// AUXILIARES
 ITreeSt* loadIT(int iw, int ih
                ,int fw, int fh
                ,int n, Matrix m, DIR d) {
@@ -79,22 +70,6 @@ ITreeSt* loadIT(int iw, int ih
   return node;
 }
 
-// PRECOND: w es potencia de 2, m es de w*w
-Img createImg(Matrix m, int w) {
-  // COMPLETAR
-  int dimension = w*w;
-  ImgSt* img = new ImgSt;
-  img->heigth = M_height(m);
-  img->width = M_width(m);
-  img->size = dimension;
-  img->imgTree = loadIT(1, 1, M_width(m), M_height(m), dimension, m, HORIZONTAL);
-  return img;
-}
-
-//---------------------------------------------------------
-// CompressImg
-//---------------------------------------------------------
-// AUXILIARES
 bool isLeave(ITreeSt* t) { return t->color!=NULL&&t->first==NULL&&t->second==NULL; }
 
 int BuildNode(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
@@ -126,15 +101,6 @@ int CompressIT(ITreeSt* t) {
   return amountOfTotalLeaves;
 }
 
-void CompressImg(Img img) {
-  // COMPLETAR
-  img->size = CompressIT(img->imgTree);
-}
-
-//---------------------------------------------------------
-// RenderImg
-//---------------------------------------------------------
-// AUXILIAR SUGERIDA
 int renderSize(int s){
   return (UNITSIZE * s);
 }
@@ -175,7 +141,37 @@ void WrapSVGTagAndRenderContent(Img img) {
   cout << "\n</svg>" << endl;
 }
 
-void RenderImg(Img img) {
+
+//---------------------------------------------------------
+// sizeImg
+//---------------------------------------------------------
+int sizeImg(Img img) {
+    // COMPLETAR
+    return img->size;
+}
+//---------------------------------------------------------
+// createImg
+//---------------------------------------------------------
+// PRECOND: w es potencia de 2, m es de w*w
+Img createImg(Matrix m, int w) {
   // COMPLETAR
+  int dimension = w*w;
+  ImgSt* img = new ImgSt;
+  img->heigth = M_height(m);
+  img->width = M_width(m);
+  img->size = dimension;
+  img->imgTree = loadIT(1, 1, M_width(m), M_height(m), dimension, m, HORIZONTAL);
+  return img;
+}
+//---------------------------------------------------------
+// CompressImg
+//---------------------------------------------------------
+void CompressImg(Img img) {
+  img->size = CompressIT(img->imgTree);
+}
+//---------------------------------------------------------
+// RenderImg
+//---------------------------------------------------------
+void RenderImg(Img img) {
   WrapSVGTagAndRenderContent(img);
 }
