@@ -71,23 +71,17 @@ ITreeSt* loadIT(int iw, int ih
 }
 
 int CompressNode(int n1, int n2, ITreeSt* t1, ITreeSt* t2, ITreeSt* t) {
-  if (t1->division==HOJA && t2->division==HOJA)
+  int amountOfLeaves = (t1->division==HOJA && t2->division==HOJA) ? ((t1->color==t2->color)?1:2) : (n1+n2);
+  if (amountOfLeaves == 1)
   {
-    if (t1->color==t2->color)
-    {
-      t->color = t1->color;
-      t->division = HOJA;
-      delete(t->first);
-      delete(t->second);
-      t->first = NULL;
-      t->second = NULL;
-      return 1;
-    } else {
-      return 2;
-    }
-  } else {
-    return n1 + n2;
-  }
+    t->color = t1->color;
+    t->division = HOJA;
+    delete(t->first);
+    delete(t->second);
+    t->first = NULL;
+    t->second = NULL;
+  } 
+  return amountOfLeaves;
 }
 
 // OBS: el int retornado es la cantidad final de hojas del t luego de modificarlo
